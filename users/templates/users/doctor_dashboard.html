@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Doctor Dashboard</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Custom CSS -->
+    <style>
+        body {
+            background: linear-gradient(to right, #1e3c72, #2a5298); /* Elegant gradient */
+            color: #ffffff;
+            font-family: 'Roboto', sans-serif;
+        }
+        .dashboard-container {
+            background: #ffffff;
+            border-radius: 15px;
+            padding: 40px;
+            max-width: 600px;
+            margin: 60px auto;
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1); /* Subtle shadow */
+            border: 1px solid #e0e0e0;
+        }
+        .dashboard-container h1 {
+            color: #2a5298; /* Professional blue */
+            font-size: 32px;
+            font-weight: 600;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        .dashboard-container p {
+            color: #333; /* Darker text color for paragraphs */
+            font-size: 18px;
+            line-height: 1.6;
+        }
+        .dashboard-container p:first-of-type {
+            margin-top: 0;
+        }
+        .dashboard-container p:last-of-type {
+            margin-bottom: 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="dashboard-container">
+            <h1>Doctor Dashboard</h1>
+            <p>Welcome, {{ user.first_name }} {{ user.last_name }}!</p>
+            <p>Email: {{ user.email }}</p>
+            <p>Address: {{ user.address_line1 }}, {{ user.city }}, {{ user.state }}, {{ user.pincode }}</p>
+        </div>
+    </div>
+    <!-- Bootstrap JS (optional) -->
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</body>
+</html>

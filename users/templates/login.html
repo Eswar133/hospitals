@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Custom CSS -->
+    <style>
+        body {
+            background: linear-gradient(to right, #1e3c72, #2a5298);
+            color: #ffffff;
+            font-family: 'Roboto', sans-serif;
+        }
+        .form-container {
+            background: #ffffff;
+            border-radius: 15px;
+            padding: 40px;
+            max-width: 550px;
+            margin: 60px auto;
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1); 
+            border: 1px solid #e0e0e0;
+            animation: slideIn 0.5s ease-out; 
+        }
+        @keyframes slideIn {
+            from {
+                transform: translateY(-20px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+        .form-container h2 {
+            color: #2a5298; 
+            margin-bottom: 30px;
+            font-size: 28px;
+            font-weight: 600;
+            text-align: center;
+        }
+        .form-container label {
+            color: #333; 
+        }
+        .form-container input {
+            border: 1px solid #ddd; 
+            background-color: #f8f9fa;
+            color: #333;
+            transition: border-color 0.3s, box-shadow 0.3s; 
+        }
+        .form-container input:focus {
+            border-color: #2a5298; 
+            box-shadow: 0 0 5px rgba(42, 82, 152, 0.3); 
+            outline: none;
+        }
+        .btn-submit {
+            background-color: #2a5298; 
+            border: none;
+            color: #ffffff; 
+            font-weight: 600;
+            padding: 12px 20px;
+            font-size: 16px;
+            border-radius: 8px;
+            transition: background-color 0.3s, transform 0.2s; 
+        }
+        .btn-submit:hover {
+            background-color: #1e3c72; 
+            transform: translateY(-3px); 
+        }
+        .btn-signup {
+            background-color: #ffffff; 
+            border: 1px solid #2a5298; 
+            color: #2a5298; 
+            font-weight: 600;
+            padding: 12px 20px;
+            font-size: 16px;
+            border-radius: 8px;
+            transition: background-color 0.3s, color 0.3s; 
+            display: block;
+            margin: 20px auto 0;
+        }
+        .btn-signup:hover {
+            background-color: #2a5298; 
+            color: #ffffff; 
+        }
+        .form-check-label {
+            color: #333; 
+        }
+        .error-message {
+            color: #e74c3c; 
+            font-weight: 600;
+            text-align: center;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="form-container">
+            <h2>Login</h2>
+            <form method="post">
+                {% csrf_token %}
+                {{ form.as_p }}
+
+                <div class="form-group">
+                    <label>User Type:</label><br>
+                    <div class="form-check">
+                        <input type="radio" name="user_type" value="patient" class="form-check-input" required>
+                        <label class="form-check-label" for="patient">Patient</label>
+                    </div>
+                    <div class="form-check">
+                        <input type="radio" name="user_type" value="doctor" class="form-check-input" required>
+                        <label class="form-check-label" for="doctor">Doctor</label>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn btn-submit">Login</button>
+                {% if error_message %}
+                    <p class="error-message">{{ error_message }}</p>
+                {% endif %}
+            </form>
+            <a href="/signup" class="btn btn-signup">Don't have an account? Sign Up</a>
+        </div>
+    </div>
+    
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</body>
+</html>
