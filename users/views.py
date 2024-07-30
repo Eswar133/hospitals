@@ -68,12 +68,14 @@ class CustomLoginView(LoginView):
         return self.form_invalid(form)
     
 
-
 def dashboard(request, user_type=None):
     user = request.user
     if user_type is None:
         user_type = user.user_type
-    return render(request, f'users/{user_type}_dashboard.html', {'user': user})
+    return render(request, f'users/{user_type}_dashboard.html', {
+        'user': user,
+        'profile_picture_url': user.profile_picture.url if user.profile_picture else None
+    })
 
 def logout(request):
     auth_logout(request)
