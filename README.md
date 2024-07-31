@@ -65,4 +65,4 @@ This project is an implementation of REST API endpoints to handle user managemen
 -  SQLite (default database)
   
 # Installation
-- Link : https://github.com/Eswar133/hospitals/blame/main/Installation.md
+- Link : https://github.com/Eswar133/hospitals/blob/main/Installation.md
