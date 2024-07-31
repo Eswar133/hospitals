@@ -66,21 +66,24 @@ class LoginView(View):
         except User.DoesNotExist:
             return JsonResponse({'error_message': 'User does not exist.'})
 
+
+
 class DashboardView(View):
     user_type = None
 
     def get(self, request):
         user = request.user
-        # Handle user type based on URL configuration
+        profile_picture_url = user.profile_picture.url if user.profile_picture else 'default-profile-pic-url.jpg'
+        
         if self.user_type == 'patient':
             return render(request, 'users/patient_dashboard.html', {
                 'user': user,
-                'profile_picture_url': user.profile_picture.url if user.profile_picture else None
+                'profile_picture_url': profile_picture_url
             })
         elif self.user_type == 'doctor':
             return render(request, 'users/doctor_dashboard.html', {
                 'user': user,
-                'profile_picture_url': user.profile_picture.url if user.profile_picture else None
+                'profile_picture_url': profile_picture_url
             })
         else:
             return redirect('login')
