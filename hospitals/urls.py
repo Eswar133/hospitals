@@ -9,7 +9,7 @@ urlpatterns = [
     path('',LoginView.as_view()),
     path('login/', LoginView.as_view(), name='login'),
     path('signup/', SignupView.as_view(), name='signup'),
-    path('patient_dashboard/', DashboardView.as_view(user_type='patient'), name='patient_dashboard'),
-    path('doctor_dashboard/', DashboardView.as_view(user_type='doctor'), name='doctor_dashboard'),
+    path('patient_dashboard/', DashboardView.as_view(), name='patient_dashboard'),
+    path('doctor_dashboard/', DashboardView.as_view(), name='doctor_dashboard'),
     path('logout/', LogoutView.as_view(), name='logout'),
-] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
