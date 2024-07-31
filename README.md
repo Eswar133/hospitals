@@ -66,3 +66,6 @@ This project is an implementation of REST API endpoints to handle user managemen
   
 # Installation
 - Link : https://github.com/Eswar133/hospitals/blob/main/Installation.md
+
+# Requirements
+- Link : https://github.com/Eswar133/hospitals/blob/main/requirements.txt
