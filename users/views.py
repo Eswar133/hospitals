@@ -5,6 +5,7 @@ from django.views import View
 from django.contrib.auth.hashers import make_password
 from .models import User
 
+
 class SignupView(View):
     def get(self, request):
         return render(request, 'signup.html', {'error_message': None})
