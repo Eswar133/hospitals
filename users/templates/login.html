@@ -93,6 +93,10 @@
             text-align: center;
             margin-top: 20px;
         }
+        .btn-submit {
+            width: 100%;
+        }
+        
     </style>
 </head>
 <body>
@@ -112,11 +116,11 @@
                 <div class="form-group">
                     <label>User Type:</label><br>
                     <div class="form-check">
-                        <input type="radio" name="user_type" value="patient" class="form-check-input" required>
+                        <input type="radio" name="user_type" value="patient" id="patient" class="form-check-input" required>
                         <label class="form-check-label" for="patient">Patient</label>
                     </div>
                     <div class="form-check">
-                        <input type="radio" name="user_type" value="doctor" class="form-check-input" required>
+                        <input type="radio" name="user_type" value="doctor" id="doctor" class="form-check-input" required>
                         <label class="form-check-label" for="doctor">Doctor</label>
                     </div>
                 </div>

@@ -98,6 +98,15 @@
             padding: 5px;
             border-radius: 5px;
         }
+        .validation-message {
+            color: #e74c3c; 
+            font-size: 14px;
+            margin-top: 5px;
+        }
+        .btn-submit {
+            width: 100%;
+        }
+        
     </style>
 </head>
 <body>
@@ -108,11 +117,13 @@
                 {% csrf_token %}
                 <div class="form-group">
                     <label for="first_name">First Name:</label>
-                    <input type="text" name="first_name" class="form-control" required>
+                    <input type="text" name="first_name" id="first_name" class="form-control" required>
+                    <p id="first_name_error" class="validation-message"></p>
                 </div>
                 <div class="form-group">
                     <label for="last_name">Last Name:</label>
-                    <input type="text" name="last_name" class="form-control" required>
+                    <input type="text" name="last_name" id="last_name" class="form-control" required>
+                    <p id="last_name_error" class="validation-message"></p>
                 </div>
                 <div class="form-group">
                     <label for="profile_picture">Profile Picture:</label>
@@ -120,44 +131,49 @@
                 </div>
                 <div class="form-group">
                     <label for="username">Username:</label>
-                    <input type="text" name="username" class="form-control" required>
+                    <input type="text" name="username" id="username" class="form-control" required>
                 </div>
                 <div class="form-group">
                     <label for="email">Email Id:</label>
-                    <input type="email" name="email" class="form-control" required>
+                    <input type="email" name="email" id="email" class="form-control" required>
+                    <p id="email_error" class="validation-message"></p>
                 </div>
                 <div class="form-group">
                     <label for="password">Password:</label>
                     <input type="password" name="password" id="password" class="form-control" required>
+                    <p id="password_error" class="validation-message"></p>
                 </div>
                 <div class="form-group">
                     <label for="confirm_password">Confirm Password:</label>
                     <input type="password" name="confirm_password" id="confirm_password" class="form-control" required>
+                    <p id="confirm_password_error" class="validation-message"></p>
                 </div>
                 <div class="form-group">
                     <label for="address_line1">Address Line 1:</label>
-                    <input type="text" name="address_line1" class="form-control" required>
+                    <input type="text" name="address_line1" id="address_line1" class="form-control" required>
                 </div>
                 <div class="form-group">
                     <label for="city">City:</label>
-                    <input type="text" name="city" class="form-control" required>
+                    <input type="text" name="city" id="city" class="form-control" required>
                 </div>
                 <div class="form-group">
                     <label for="state">State:</label>
-                    <input type="text" name="state" class="form-control" required>
+                    <input type="text" name="state" id="state" class="form-control" required>
+                    <p id="state_error" class="validation-message"></p>
                 </div>
                 <div class="form-group">
                     <label for="pincode">Pincode:</label>
-                    <input type="text" name="pincode" class="form-control" required>
+                    <input type="text" name="pincode" id="pincode" class="form-control" required>
+                    <p id="pincode_error" class="validation-message"></p>
                 </div>
                 <div class="form-group">
                     <label>User Type:</label><br>
                     <div class="form-check">
-                        <input type="radio" name="user_type" value="patient" class="form-check-input" checked>
+                        <input type="radio" name="user_type" value="patient" id="patient" class="form-check-input" checked>
                         <label class="form-check-label" for="patient">Patient</label>
                     </div>
                     <div class="form-check">
-                        <input type="radio" name="user_type" value="doctor" class="form-check-input">
+                        <input type="radio" name="user_type" value="doctor" id="doctor"class="form-check-input">
                         <label class="form-check-label" for="doctor">Doctor</label>
                     </div>
                 </div>
@@ -173,33 +189,139 @@
         document.getElementById('signupForm').addEventListener('submit', function(event) {
             event.preventDefault(); // Prevent default form submission
 
+            const firstName = document.getElementById('first_name').value;
+            const lastName = document.getElementById('last_name').value;
+            const email = document.getElementById('email').value;
             const password = document.getElementById('password').value;
             const confirmPassword = document.getElementById('confirm_password').value;
+            const state = document.getElementById('state').value;
+            const pincode = document.getElementById('pincode').value;
 
-            if (password !== confirmPassword) {
-                alert('Passwords do not match. Please try again.');
-                return;
+            let isValid = true;
+
+            // Clear previous error messages
+            document.querySelectorAll('.validation-message').forEach(p => p.textContent = '');
+
+            // Validate first name
+            if (!/^[A-Za-z]+$/.test(firstName)) {
+                document.getElementById('first_name_error').textContent = 'First name can only contain letters.';
+                isValid = false;
             }
 
-            const formData = new FormData(this);
-            fetch('/signup/', {
-                method: 'POST',
-                body: formData,
-                headers: {
-                    'X-CSRFToken': formData.get('csrfmiddlewaretoken')
-                }
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.redirect) {
-                    window.location.href = data.redirect;
-                } else if (data.error_message) {
-                    document.getElementById('error-message').textContent = data.error_message;
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-            });
+            // Validate last name
+            if (!/^[A-Za-z]+$/.test(lastName)) {
+                document.getElementById('last_name_error').textContent = 'Last name can only contain letters.';
+                isValid = false;
+            }
+
+            // Validate email
+            if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+                document.getElementById('email_error').textContent = 'Invalid email format.';
+                isValid = false;
+            }
+
+            // Validate password
+            if (!/(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/.test(password)) {
+                document.getElementById('password_error').textContent = 'Password must be at least 8 characters long and include uppercase, lowercase, numbers, and special characters.';
+                isValid = false;
+            }
+
+            // Validate confirm password
+            if (password !== confirmPassword) {
+                document.getElementById('confirm_password_error').textContent = 'Passwords do not match.';
+                isValid = false;
+            }
+
+            // Validate state
+            if (!/^[A-Za-z]+$/.test(state)) {
+                document.getElementById('state_error').textContent = 'State can only contain letters.';
+                isValid = false;
+            }
+
+            // Validate pincode
+            if (!/^\d{6}$/.test(pincode)) {
+                document.getElementById('pincode_error').textContent = 'Pincode must be a 6-digit number.';
+                isValid = false;
+            }
+
+            if (isValid) {
+                const formData = new FormData(this);
+                fetch('/signup/', {
+                    method: 'POST',
+                    body: formData,
+                    headers: {
+                        'X-CSRFToken': formData.get('csrfmiddlewaretoken')
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.redirect) {
+                        window.location.href = data.redirect;
+                    } else if (data.error_message) {
+                        document.getElementById('error-message').textContent = data.error_message;
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                });
+            }
+        });
+
+        // Real-time validation feedback
+        document.getElementById('first_name').addEventListener('input', function() {
+            if (!/^[A-Za-z]*$/.test(this.value)) {
+                document.getElementById('first_name_error').textContent = 'First name can only contain letters.';
+            } else {
+                document.getElementById('first_name_error').textContent = '';
+            }
+        });
+
+        document.getElementById('last_name').addEventListener('input', function() {
+            if (!/^[A-Za-z]*$/.test(this.value)) {
+                document.getElementById('last_name_error').textContent = 'Last name can only contain letters.';
+            } else {
+                document.getElementById('last_name_error').textContent = '';
+            }
+        });
+
+        document.getElementById('email').addEventListener('input', function() {
+            if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(this.value)) {
+                document.getElementById('email_error').textContent = 'Invalid email format.';
+            } else {
+                document.getElementById('email_error').textContent = '';
+            }
+        });
+
+        document.getElementById('password').addEventListener('input', function() {
+            if (!/(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/.test(this.value)) {
+                document.getElementById('password_error').textContent = 'Password must be at least 8 characters long and include uppercase, lowercase, numbers, and special characters.';
+            } else {
+                document.getElementById('password_error').textContent = '';
+            }
+        });
+
+        document.getElementById('confirm_password').addEventListener('input', function() {
+            if (this.value !== document.getElementById('password').value) {
+                document.getElementById('confirm_password_error').textContent = 'Passwords do not match.';
+            } else {
+                document.getElementById('confirm_password_error').textContent = '';
+            }
+        });
+
+        document.getElementById('state').addEventListener('input', function() {
+            if (!/^[A-Za-z]*$/.test(this.value)) {
+                document.getElementById('state_error').textContent = 'State can only contain letters.';
+            } else {
+                document.getElementById('state_error').textContent = '';
+            }
+        });
+
+        document.getElementById('pincode').addEventListener('input', function() {
+            if (!/^\d{6}$/.test(this.value)) {
+                document.getElementById('pincode_error').textContent = 'Pincode must be a 6-digit number.';
+            } else {
+                document.getElementById('pincode_error').textContent = '';
+            }
         });
     </script>
 
