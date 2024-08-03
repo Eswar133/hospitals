@@ -50,7 +50,7 @@
             cursor: pointer;
             border-radius: 10px;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-            height: 350px; /* Fixed height for uniformity */
+            height: 30em;
             overflow: hidden;
         }
         .card img {
@@ -72,6 +72,8 @@
         .card-text {
             color: #333;
             margin-bottom: 10px;
+            
+            
         }
         .btn-primary {
             background-color: #2a5298;
@@ -83,42 +85,24 @@
     </style>
 </head>
 <body>
-    <!-- Navbar -->
-    <nav class="navbar navbar-expand-lg navbar-custom">
-        <a class="navbar-brand" href="http://127.0.0.1:8000/patient_dashboard/">Home</a>
-        <div class="collapse navbar-collapse">
-            <ul class="navbar-nav ml-auto">
-                <li class="nav-item">
-                    <a class="nav-link" href="#" onclick="logout()">
-                        <div class="profile-pic">
-                            {% if profile_picture_url %}
-                                <img src="{{ profile_picture_url }}" alt="Profile Picture">
-                            {% else %}
-                                <img src="default-profile-pic-url.jpg" alt="Default Profile Picture">
-                            {% endif %}
-                        </div>
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="#" onclick="logout()">Logout</a>
-                </li>
-            </ul>
-        </div>
-    </nav>
-
+    {% if user_type == 'doctor' %}
+        {% include '_include/header_doctor.html' %}
+    {% else %}
+        {% include '_include/header_patient.html' %} 
+    {% endif %}
+    
     <div class="container">
-        <div class="sort-container">
-            <form method="get" class="form-inline">
-                <label class="mr-2" for="sort" style="color:black;">Sort by:</label>
+        <div class="sort-container d-flex justify-content-center">
+            <form method="get" class="form-inline" style="margin-right:5em;">
                 <select name="sort" id="sort" class="form-control mr-2">
                     <option value="date" {% if sort_by == "date" %}selected{% endif %}>Date</option>
                     <option value="likes" {% if sort_by == "likes" %}selected{% endif %}>Likes</option>
                 </select>
                 <button type="submit" class="btn btn-primary">Sort</button>
             </form>
-            <form method="get" class="form-inline mt-2">
+            <form method="get" class="form-inline ">
                 <input class="form-control mr-2" type="search" name="query" placeholder="Search by title or author" aria-label="Search" value="{{ query }}">
-                <button type="submit" class="btn btn-primary">Search</button>
+                <button type="submit" class="btn btn-primary" >Search</button>
             </form>
         </div>
         <div class="row">
@@ -128,8 +112,12 @@
                     <img class="card-img-top" src="{{ post.image.url }}" alt="Card image cap">
                     <div class="card-body">
                         <h5 class="card-title">Title: {{ post.title }}</h5>
-                        <p class="card-text">Summary: {{ post.summary }}</p>
-                        <a href="{% url 'blog_detail' post.id %}" class="btn btn-primary">Read more</a>
+                        <p class="card-text">Summary: {{ post.summary }}</p> 
+                    </div>
+                    <div class="card-footer">
+                        <a href="{% url 'blog_detail' post.id %}">
+                            <div class="btn btn-outline-primary" style="width:100%;">Read more </div>
+                        </a>
                     </div>
                 </div>
             </div>

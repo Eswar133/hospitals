@@ -67,7 +67,7 @@
             background: #f8f9fa; /* Light grey for container */
             border-radius: 15px;
             padding: 40px;
-            max-width: 900px;
+            
             margin: 60px auto;
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2); /* Slightly more prominent shadow */
             border: 1px solid #444;
@@ -107,48 +107,12 @@
     </style>
 </head>
 <body>
-    <!-- Navbar -->
-    <nav class="navbar navbar-expand-lg navbar-custom">
-        <a class="navbar-brand" href="#">Doctor Dashboard</a>
-        <div class="collapse navbar-collapse">
-            <ul class="navbar-nav ml-auto">
-                <li class="nav-item">
-                    <a class="nav-link">
-                        {% if profile_picture_url %}
-                            <img src="{{ profile_picture_url }}" alt="Profile Picture" class="profile-pic">
-                        {% else %}
-                            <img src="default-profile-pic-url.jpg" alt="Default Profile Picture" class="profile-pic">
-                        {% endif %}
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="{% url 'add_blog_post' %}">Add Blog</a>
-                </li>
-                {% if user.blog_set.exists %}
-                <li class="nav-item">
-                    <a class="nav-link" href="{% url 'edit_blog_post' %}">Edit Blog</a>
-                </li>
-                {% endif %}
-                <li class="nav-item">
-                    <a class="nav-link" href="{% url 'show_drafts' %}">Show Drafts</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="{% url 'show_posted_blogs' %}">Show Posted Blogs</a>
-                </li>
-                
-                <li class="nav-item">
-                    <a class="nav-link btn btn-custom" href="#" onclick="logout()">Logout</a>
-                </li>
-            </ul>
-        </div>
-    </nav>
-
+    
+    {% include '_include/header_doctor.html' %}
     <div class="container">
         <div class="dashboard-container">
-            <h1>Doctor Dashboard</h1>
-            <p>Welcome, {{ user.first_name }} {{ user.last_name }}!</p>
-            <p>Email: {{ user.email }}</p>
-            <p>Address: {{ user.address_line1 }}, {{ user.city }}, {{ user.state }}, {{ user.pincode }}</p>
+            <h1>Welcome, {{ user.first_name }} {{ user.last_name }}! Would you like to read some blogs?</h1>    
+            {% include '_include/categories.html' %}
         </div>
     </div>
 

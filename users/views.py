@@ -63,7 +63,7 @@ class LoginView(View):
             user = User.objects.get(username=username)
             if user.check_password(password): 
                 auth_login(request, user)
-                return JsonResponse({'redirect': f'/{user.user_type}_dashboard/'})
+                return JsonResponse({'redirect': f'/'})
             else:
                 return JsonResponse({'error_message': 'Invalid credentials.'})
         except User.DoesNotExist:
@@ -92,9 +92,6 @@ class LogoutView(View):
         auth_logout(request)
         return redirect('login')
     
-from django.db.models import Count
-
-from django.core.paginator import Paginator
 
 class BlogListView(ListView):
     model = BlogPost
@@ -119,9 +116,14 @@ class BlogListView(ListView):
             posts = posts.annotate(like_count=Count('likes')).order_by('-like_count')
         else:
             posts = posts.order_by('-created_at')
-
+        print(posts)    
         return posts
-
+        
+    def truncate_words(self,value, num_words):
+        words = value.split()
+        if len(words) > num_words:
+            return ' '.join(words[:num_words]) + '...'
+        return value    
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['sort_by'] = self.request.GET.get('sort', 'date')
@@ -135,7 +137,10 @@ class BlogListView(ListView):
         page_number = self.request.GET.get('page')
         page_obj = paginator.get_page(page_number)
         context['page_obj'] = page_obj
-
+        for obj in page_obj:
+            obj.summary = self.truncate_words(obj.summary, 15)
+        
+        context['user_type'] = self.request.user.user_type
         return context
 
 class BlogDetailView(DetailView):
@@ -190,7 +195,7 @@ class AddBlogPostView(View):
             is_draft=is_draft
         )
         blog_post.save()
-        return redirect('doctor_dashboard')
+        return redirect('/')
 
 class EditBlogPostView(View):
     def get(self, request, pk):
@@ -216,7 +221,7 @@ class EditBlogPostView(View):
         post.content = request.POST.get('content')
         post.is_draft = request.POST.get('is_draft') == 'on'
         post.save()
-        return redirect('doctor_dashboard')
+        return redirect('/')
 
 class LikeBlogPostView(View):
     def post(self, request, pk):

@@ -52,7 +52,6 @@
             background: #f8f9fa; /* Light grey for container */
             border-radius: 15px;
             padding: 40px;
-            max-width: 900px;
             margin: 60px auto;
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2); /* Slightly more prominent shadow */
             border: 1px solid #444;
@@ -96,73 +95,15 @@
     </style>
 </head>
 <body>
-    <!-- Navbar -->
-    <nav class="navbar navbar-expand-lg navbar-custom">
-        <a class="navbar-brand" href="http://127.0.0.1:8000/patient_dashboard/">Patient Dashboard</a>
-        <div class="collapse navbar-collapse">
-            <ul class="navbar-nav ml-auto">
-                <li class="nav-item">
-                    <a class="nav-link">
-                        {% if profile_picture_url %}
-                            <img src="{{ profile_picture_url }}" alt="Profile Picture" class="profile-pic">
-                        {% else %}
-                            <img src="default-profile-pic-url.jpg" alt="Default Profile Picture" class="profile-pic">
-                        {% endif %}
-                        
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link btn btn-custom" href="#" onclick="logout()">Logout</a>
-                </li>
-            </ul>
-        </div>
-    </nav>
-
+    
+    {% include '_include/header_patient.html' %}
     <div class="container">
         <div class="dashboard-container">
-            <h1>Welcome, {{ user.first_name }} {{ user.last_name }}! Would you like to read some blogs?</h1>
-            
-            <!-- Category Cards -->
-            <div class="row">
-                <div class="col-lg-3 col-md-4 col-sm-6 mb-4">
-                    <div class="card category-card">
-                        <img src="https://th.bing.com/th/id/OIP.dfo_iqMN6FAp1g2vQu2UVAHaEK?rs=1&pid=ImgDetMain" class="card-img-top" alt="Mental Health">
-                        <div class="card-body">
-                            <h5 class="card-title">Mental Health</h5>
-                            <a href="{% url 'blog_list_category' 'Mental Health' %}" class="btn btn-primary">Explore</a>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-lg-3 col-md-4 col-sm-6 mb-4">
-                    <div class="card category-card">
-                        <img src="https://media.clinicaladvisor.com/images/2017/03/29/heartillustrationts51811362_1191108.jpg" class="card-img-top" alt="Heart Disease">
-                        <div class="card-body">
-                            <h5 class="card-title">Heart Disease</h5>
-                            <a href="{% url 'blog_list_category' 'Heart Disease' %}" class="btn btn-primary">Explore</a>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-lg-3 col-md-4 col-sm-6 mb-4">
-                    <div class="card category-card">
-                        <img src="https://www.emeraldgrouppublishing.com/sites/default/files/image/covid-cells.jpg" class="card-img-top" alt="Covid19">
-                        <div class="card-body">
-                            <h5 class="card-title">Covid19</h5>
-                            <a href="{% url 'blog_list_category' 'Covid19' %}" class="btn btn-primary">Explore</a>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-lg-3 col-md-4 col-sm-6 mb-4">
-                    <div class="card category-card">
-                        <img src="https://stjoseph.stlukeshealth.org/content/dam/stjoseph-stlukeshealth/images/shutterstock-1060328165-min.jpg/_jcr_content/renditions/cq5dam.web.1440.405.jpeg" class="card-img-top" alt="Immunization">
-                        <div class="card-body">
-                            <h5 class="card-title">Immunization</h5>
-                            <a href="{% url 'blog_list_category' 'Immunization' %}" class="btn btn-primary">Explore</a>
-                        </div>
-                    </div>
-                </div>
-            </div>
+            <h1>Welcome, {{ user.first_name }} {{ user.last_name }}! Would you like to read some blogs?</h1>    
+            {% include '_include/categories.html' %}
         </div>
     </div>
+
 
     <!-- Bootstrap JS and dependencies -->
     <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>

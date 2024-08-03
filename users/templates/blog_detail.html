@@ -104,25 +104,11 @@
     </style>
 </head>
 <body>
-    <!-- Navbar -->
-    <nav class="navbar navbar-expand-lg navbar-custom">
-        <a class="navbar-brand" href="{% url 'patient_dashboard' %}">Home</a>
-        <div class="collapse navbar-collapse">
-            <ul class="navbar-nav ml-auto">
-                <li class="nav-item">
-                    {% if profile_picture_url %}
-                        <img src="{{ profile_picture_url }}" alt="Profile Picture" class="profile-pic">
-                    {% else %}
-                        <img src="default-profile-pic-url.jpg" alt="Default Profile Picture" class="profile-pic">
-                    {% endif %}
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="#" onclick="logout()">Logout</a>
-                </li>
-            </ul>
-        </div>
-    </nav>
-    
+    {% if user_type == 'doctor' %}
+        {% include '_include/header_doctor.html' %}
+    {% else %}
+        {% include '_include/header_patient.html' %} 
+    {% endif %}
     <div class="container">
         <div class="card">
             <h2 class="card-title">{{ post.title }}</h2>
@@ -131,8 +117,12 @@
                     <img class="card-img-top" src="{{ post.image.url }}" alt="{{ post.title }}">
                 </div>
                 <div class="blog-content">
+                    <h4>Summary:</h4>
+                    <p class="card-summary">{{ post.summary }}</p>
+                    <hr style="background:#4d4d4d;">
                     <p class="card-text">{{ post.content }}</p>
-                    {% with post.summary|slice:":15" as truncated_summary %}
+
+                    {% comment %} {% with post.summary|slice:":15" as truncated_summary %}
                         <p class="card-text">
                             {{ truncated_summary }}{% if post.summary|length > 15 %}...
                             <span class="read-more" onclick="toggleSummary(this)">Read More</span>{% endif %}
@@ -141,7 +131,7 @@
                             <p class="card-text full-summary">{{ post.summary }}</p>
                             <span class="read-less" onclick="toggleSummary(this)">Read Less</span>
                         {% endif %}
-                    {% endwith %}
+                    {% endwith %} {% endcomment %}
                     <p>Author: {{ post.author.username }}</p>
                     <button id="like-button" class="like-button">{{ post.likes.count }} Likes</button>
                 </div>
@@ -166,21 +156,7 @@
             window.location.href = '/login/';
         }
 
-        function toggleSummary(element) {
-            const fullSummary = element.parentNode.nextElementSibling;
-            const readMore = document.querySelector('.read-more');
-            
-
-            if (fullSummary.style.display === 'none' || fullSummary.style.display === '') {
-                fullSummary.style.display = 'block';
-                readMore.style.display = 'none';
-                readLess.style.display = 'inline';
-            } else {
-                fullSummary.style.display = 'none';
-                readMore.style.display = 'inline';
-                readLess.style.display = 'none';
-            }
-        }
+       
     </script>
 
     <!-- Bootstrap JS and dependencies -->

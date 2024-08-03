@@ -7,11 +7,9 @@ from django.conf import settings
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('', LoginView.as_view(), name='home'),
+    path('', DashboardView.as_view(), name='home'),
     path('login/', LoginView.as_view(), name='login'),
     path('signup/', SignupView.as_view(), name='signup'),
-    path('patient_dashboard/', DashboardView.as_view(), name='patient_dashboard'),
-    path('doctor_dashboard/', DashboardView.as_view(), name='doctor_dashboard'),
     path('logout/', LogoutView.as_view(), name='logout'),
     path('blogs/', BlogListView.as_view(), name='blog_list'),
     path('blogs/category/<str:category>/', BlogListView.as_view(), name='blog_list_category'),

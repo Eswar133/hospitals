@@ -31,19 +31,19 @@ This project is an implementation of REST API endpoints to handle user managemen
   "user_type": "patient"
 } ```
 - Sample Output: ```{
-  "redirect": "/patient_dashboard/"
+  "redirect": "/"
 }```
 - Response Code: 200
 
 ## Patient Dashboard
 - Request Method: GET
-- Sample Endpoint: http://localhost:8000/patient_dashboard/
+- Sample Endpoint: http://localhost:8000/
 - Sample Output: (Rendered HTML with user's profile information)
 - Response Code: 200
 
 ## Doctor Dashboard
 - Request Method: GET
-- Sample Endpoint: http://localhost:8000/doctor_dashboard/
+- Sample Endpoint: http://localhost:8000/
 - Sample Output: (Rendered HTML with user's profile information)
 - Response Code: 200
 
