@@ -1,0 +1,85 @@
+<!--patient has to see this -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Blog Posts</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Custom CSS -->
+    <style>
+        body {
+            background: linear-gradient(to right, #1e3c72, #2a5298); 
+            color: #ffffff;
+            font-family: 'Roboto', sans-serif;
+        }
+        .container {
+            margin-top: 60px;
+        }
+        .card {
+            margin-bottom: 20px;
+        }
+        .card-title {
+            color: #2a5298;
+            font-size: 1.5rem;
+            font-weight: 600;
+        }
+        .card-text {
+            color: #333;
+        }
+        .btn-primary {
+            background-color: #2a5298;
+            border: none;
+        }
+        .btn-primary:hover {
+            background-color: #1e3c72;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Blog Posts</h2>
+        {% for post in page_obj %}
+        <div class="card">
+            <img src="{{ post.image.url }}" class="card-img-top" alt="{{ post.title }}">
+            <div class="card-body">
+                <h5 class="card-title">{{ post.title }}</h5>
+                <p class="card-text">{{ post.short_summary }}</p>
+                <a href="{% url 'blog_detail' post.pk %}" class="btn btn-primary">Read More</a>
+            </div>
+        </div>
+        {% empty %}
+        <p>No blog posts available.</p>
+        {% endfor %}
+        <div class="pagination">
+            <span class="step-links">
+                {% if page_obj.has_previous %}
+                    <a href="?page=1">&laquo; first</a>
+                    <a href="?page={{ page_obj.previous_page_number }}">previous</a>
+                {% endif %}
+        
+                <span class="current">
+                    Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}.
+                </span>
+        
+                {% if page_obj.has_next %}
+                    <a href="?page={{ page_obj.next_page_number }}">next</a>
+                    <a href="?page={{ page_obj.paginator.num_pages }}">last &raquo;</a>
+                {% endif %}
+            </span>
+        </div>
+        <form method="get" class="form-inline">
+            <select name="sort" class="form-control" onchange="this.form.submit()">
+                <option value="date" {% if sort_by == 'date' %}selected{% endif %}>Sort by Date</option>
+                <option value="likes" {% if sort_by == 'likes' %}selected{% endif %}>Sort by Likes</option>
+            </select>
+        </form>
+    </div>
+
+    <!-- Bootstrap JS and dependencies -->
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</body>
+</html>

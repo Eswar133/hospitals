@@ -1,9 +1,11 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import login as auth_login, logout as auth_logout
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.http import JsonResponse
 from django.views import View
 from django.contrib.auth.hashers import make_password
-from .models import User
+from django.core.paginator import Paginator
+from .models import User,BlogPost
 
 
 class SignupView(View):
@@ -46,6 +48,7 @@ class SignupView(View):
         )
         user.save()
         return JsonResponse({'redirect': '/login/'})
+
 class LoginView(View):
     def get(self, request):
         return render(request, 'login.html', {'error_message': None})
@@ -64,9 +67,7 @@ class LoginView(View):
         except User.DoesNotExist:
             return JsonResponse({'error_message': 'Username or Password are incorrect.'})
 
-
-
-class DashboardView(View):
+class DashboardView(LoginRequiredMixin,View):
 
     def get(self, request):
         user = request.user
@@ -89,3 +90,80 @@ class LogoutView(View):
     def get(self, request):
         auth_logout(request)
         return redirect('login')
+
+class BlogListView(View):
+    def get(self, request, category=None):
+        sort_by = request.GET.get('sort', 'date')  # Default to sorting by date
+        if category:
+            posts = BlogPost.objects.filter(category=category, is_draft=False)
+        else:
+            posts = BlogPost.objects.filter(is_draft=False)
+
+        search_query = request.GET.get('search', '')
+        if search_query:
+            posts = posts.filter(title__icontains=search_query) | posts.filter(author__username__icontains=search_query)
+
+        if sort_by == 'likes':
+            posts = posts.annotate(like_count=Count('likes')).order_by('-like_count')
+        else:
+            posts = posts.order_by('-created_at')
+
+        paginator = Paginator(posts, 10)
+        page_number = request.GET.get('page')
+        page_obj = paginator.get_page(page_number)
+
+        return render(request, 'blog_list.html', {'page_obj': page_obj, 'sort_by': sort_by})
+    
+class BlogDetailView(View):
+    def get(self, request, pk):
+        post = get_object_or_404(BlogPost, pk=pk, is_draft=False)
+        return render(request, 'blog_detail.html', {'post': post})
+
+class AddBlogPostView(View):
+    def get(self, request):
+        return render(request, 'add_blog_post.html', {'categories': BlogPost.CATEGORY_CHOICES})
+
+    def post(self, request):
+        title = request.POST.get('title')
+        image = request.FILES.get('image')
+        category = request.POST.get('category')
+        summary = request.POST.get('summary')
+        content = request.POST.get('content')
+        is_draft = request.POST.get('is_draft') == 'on'
+
+        blog_post = BlogPost(
+            author=request.user,
+            title=title,
+            image=image,
+            category=category,
+            summary=summary,
+            content=content,
+            is_draft=is_draft
+        )
+        blog_post.save()
+        return redirect('doctor_dashboard')
+
+class EditBlogPostView(View):
+    def get(self, request, pk):
+        post = get_object_or_404(BlogPost, pk=pk, author=request.user)
+        return render(request, 'edit_blog_post.html', {'post': post, 'categories': BlogPost.CATEGORY_CHOICES})
+
+    def post(self, request, pk):
+        post = get_object_or_404(BlogPost, pk=pk, author=request.user)
+        post.title = request.POST.get('title')
+        post.image = request.FILES.get('image', post.image)
+        post.category = request.POST.get('category')
+        post.summary = request.POST.get('summary')
+        post.content = request.POST.get('content')
+        post.is_draft = request.POST.get('is_draft') == 'on'
+        post.save()
+        return redirect('doctor_dashboard')
+
+class LikeBlogPostView(View):
+    def post(self, request, pk):
+        post = get_object_or_404(BlogPost, pk=pk)
+        if request.user in post.likes.all():
+            post.likes.remove(request.user)
+        else:
+            post.likes.add(request.user)
+        return JsonResponse({'likes_count': post.likes.count()})

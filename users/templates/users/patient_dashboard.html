@@ -17,7 +17,7 @@
             background: #ffffff;
             border-radius: 15px;
             padding: 40px;
-            max-width: 600px;
+            max-width: 900px;
             margin: 60px auto;
             box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1); /* Subtle shadow */
             border: 1px solid #e0e0e0;
@@ -33,12 +33,6 @@
             color: #333; /* Darker text color for paragraphs */
             font-size: 18px;
             line-height: 1.6;
-        }
-        .dashboard-container p:first-of-type {
-            margin-top: 0;
-        }
-        .dashboard-container p:last-of-type {
-            margin-bottom: 0;
         }
         .navbar-custom {
             background-color: #2a5298; /* Navbar background color */
@@ -60,6 +54,27 @@
             width: 40px;
             height: 40px;
             border-radius: 50%;
+        }
+        .category-card {
+            background: #ffffff;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1); /* Subtle shadow for cards */
+            overflow: hidden; /* Ensures content stays within card boundaries */
+            transition: transform 0.2s; /* Smooth scale transition */
+            height: 100%; /* Ensures all cards have the same height */
+        }
+        .category-card:hover {
+            transform: scale(1.05); /* Slightly scale up on hover */
+        }
+        .category-card img {
+            height: 200px; /* Fixed height */
+            object-fit: cover; /* Ensures image covers the card area without distortion */
+        }
+        .category-card .card-body {
+            padding: 20px;
+        }
+        .category-card .card-title {
+            color: #2a5298;
         }
     </style>
 </head>
@@ -88,21 +103,60 @@
 
     <div class="container">
         <div class="dashboard-container">
-            <h1>Patient Dashboard</h1>
-            <p>Welcome, {{ user.first_name }} {{ user.last_name }}!</p>
+            <h1>Welcome, {{ user.first_name }} {{ user.last_name }}!</h1>
             <p>Email: {{ user.email }}</p>
             <p>Address: {{ user.address_line1 }}, {{ user.city }}, {{ user.state }}, {{ user.pincode }}</p>
+
+            <!-- Category Cards -->
+            <div class="row">
+                <div class="col-lg-3 col-md-4 col-sm-6 mb-4">
+                    <div class="card category-card">
+                        <img src="https://res.cloudinary.com/jerrick/image/upload/c_scale,q_auto/5f7945a7d95201001cc124da.jpg" class="card-img-top" alt="Mental Health">
+                        <div class="card-body">
+                            <h5 class="card-title">Mental Health</h5>
+                            <a href="{% url 'blog_list' 'Mental Health' %}" class="btn btn-primary">Explore</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-md-4 col-sm-6 mb-4">
+                    <div class="card category-card">
+                        <img src="https://th.bing.com/th/id/OIP.-OSnt96oCABPRGPPVu8SkgHaFy?rs=1&pid=ImgDetMain" class="card-img-top" alt="Heart Disease">
+                        <div class="card-body">
+                            <h5 class="card-title">Heart Disease</h5>
+                            <a href="{% url 'blog_list' 'Heart Disease' %}" class="btn btn-primary">Explore</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-md-4 col-sm-6 mb-4">
+                    <div class="card category-card">
+                        <img src="https://www.emeraldgrouppublishing.com/sites/default/files/image/covid-cells.jpg" class="card-img-top" alt="Covid19">
+                        <div class="card-body">
+                            <h5 class="card-title">Covid19</h5>
+                            <a href="{% url 'blog_list' 'Covid19' %}" class="btn btn-primary">Explore</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-md-4 col-sm-6 mb-4">
+                    <div class="card category-card">
+                        <img src="https://stjoseph.stlukeshealth.org/content/dam/stjoseph-stlukeshealth/images/shutterstock-1060328165-min.jpg/_jcr_content/renditions/cq5dam.web.1440.405.jpeg" class="card-img-top" alt="Immunization">
+                        <div class="card-body">
+                            <h5 class="card-title">Immunization</h5>
+                            <a href="{% url 'blog_list' 'Immunization' %}" class="btn btn-primary">Explore</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 
-    <!-- Bootstrap JS (optional) -->
-    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <!-- Bootstrap JS and dependencies -->
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
     <!-- Logout Script -->
     <script>
         function logout() {
-            window.location.href = '/login';
+            window.location.href = '/login/';
         }
     </script>
 </body>

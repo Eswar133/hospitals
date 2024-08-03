@@ -1,0 +1,89 @@
+<!--patient has to see this -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ post.title }}</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Custom CSS -->
+    <style>
+        body {
+            background: linear-gradient(to right, #1e3c72, #2a5298); 
+            color: #ffffff;
+            font-family: 'Roboto', sans-serif;
+        }
+        .container {
+            margin-top: 60px;
+        }
+        .card {
+            background-color: #ffffff;
+            color: #333333;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        .card img {
+            max-width: 100%;
+            border-radius: 10px;
+        }
+        .card-title {
+            color: #2a5298;
+            font-size: 2rem;
+            font-weight: 600;
+        }
+        .card-text {
+            color: #333;
+        }
+        .btn-primary {
+            background-color: #2a5298;
+            border: none;
+        }
+        .btn-primary:hover {
+            background-color: #1e3c72;
+        }
+        .like-button {
+            background-color: #2a5298;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .like-button:hover {
+            background-color: #1e3c72;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="card">
+            <h2 class="card-title">{{ post.title }}</h2>
+            <img src="{{ post.image.url }}" alt="{{ post.title }}">
+            <p class="card-text">{{ post.content }}</p>
+            <p>Author: {{ post.author.username }}</p>
+            <button id="like-button" class="like-button">{{ post.likes.count }} Likes</button>
+        </div>
+    </div>
+
+    <!-- CSRF Token -->
+    <script>
+        document.getElementById('like-button').addEventListener('click', function() {
+            fetch("{% url 'like_blog_post' post.id %}", {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': '{{ csrf_token }}'
+                }
+            }).then(response => response.json()).then(data => {
+                this.innerText = data.likes_count + ' Likes';
+            });
+        });
+    </script>
+
+    <!-- Bootstrap JS and dependencies -->
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</body>
+</html>

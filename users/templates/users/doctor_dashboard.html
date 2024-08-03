@@ -61,6 +61,14 @@
             height: 40px;
             border-radius: 50%;
         }
+        .btn-custom {
+            background-color: #2a5298;
+            color: #ffffff;
+            border: none;
+        }
+        .btn-custom:hover {
+            background-color: #1e3c72;
+        }
     </style>
 </head>
 <body>
@@ -72,9 +80,7 @@
                 <li class="nav-item dropdown">
                     <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                         {% if profile_picture_url %}
-                        
                             <img src="{{ profile_picture_url }}" alt="Profile Picture" class="profile-pic">
-
                         {% else %}
                             <img src="default-profile-pic-url.jpg" alt="Default Profile Picture" class="profile-pic">
                         {% endif %}
@@ -84,9 +90,20 @@
                         <a class="dropdown-item" href="#" onclick="logout()">Logout</a>
                     </div>
                 </li>
+                <!-- Add Blog Button -->
+                <li class="nav-item">
+                    <a class="nav-link btn btn-custom" href="{% url 'add_blog_post' %}">Add Blog</a>
+                </li>
+                <!-- Edit Blog Button -->
+                {% if user.blog_set.exists %}
+                <li class="nav-item">
+                    <a class="nav-link btn btn-custom" href="{% url 'edit_blog_post' %}">Edit Blog</a>
+                </li>
+                {% endif %}
             </ul>
         </div>
     </nav>
+
     <div class="container">
         <div class="dashboard-container">
             <h1>Doctor Dashboard</h1>
@@ -95,13 +112,16 @@
             <p>Address: {{ user.address_line1 }}, {{ user.city }}, {{ user.state }}, {{ user.pincode }}</p>
         </div>
     </div>
+
+    <!-- Bootstrap JS (optional) -->
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <!-- Logout Script -->
     <script>
         function logout() {
             window.location.href = '/login'; 
         }
     </script>
-    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js"></script>
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 </body>
 </html>
