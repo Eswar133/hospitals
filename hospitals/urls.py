@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django.urls import path
 from users.views import SignupView, LoginView, DashboardView, LogoutView
-from users.views import BlogListView, BlogDetailView, AddBlogPostView, EditBlogPostView, LikeBlogPostView
+from users.views import BlogListView, BlogDetailView, AddBlogPostView, EditBlogPostView, LikeBlogPostView,DraftListView,PostedBlogListView
 from django.conf.urls.static import static
 from django.conf import settings
 
@@ -19,4 +19,6 @@ urlpatterns = [
     path('blogs/edit/<int:pk>/', EditBlogPostView.as_view(), name='edit_blog_post'),
     path('blogs/like/<int:pk>/', LikeBlogPostView.as_view(), name='like_blog_post'),
     path('blogs/<str:category>/', BlogListView.as_view(), name='blog_list'),
+    path('drafts/', DraftListView.as_view(), name='show_drafts'),
+    path('posted_blogs/', PostedBlogListView.as_view(), name='show_posted_blogs'),
 ] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

@@ -3,6 +3,7 @@ from django.contrib.auth import login as auth_login, logout as auth_logout
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.http import JsonResponse
 from django.views import View
+from django.views.generic import ListView
 from django.contrib.auth.hashers import make_password
 from django.core.paginator import Paginator
 from .models import User,BlogPost
@@ -167,3 +168,19 @@ class LikeBlogPostView(View):
         else:
             post.likes.add(request.user)
         return JsonResponse({'likes_count': post.likes.count()})
+
+class DraftListView(LoginRequiredMixin, ListView):
+    model = BlogPost
+    template_name = 'draft_list.html'
+    context_object_name = 'drafts'
+
+    def get_queryset(self):
+        return BlogPost.objects.filter(author=self.request.user, is_draft=True)  
+
+class PostedBlogListView(LoginRequiredMixin, ListView):
+    model = BlogPost
+    template_name = 'posted_blog_list.html'
+    context_object_name = 'blogs'
+
+    def get_queryset(self):
+        return BlogPost.objects.filter(author=self.request.user, is_draft=False)

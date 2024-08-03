@@ -202,18 +202,7 @@
             // Clear previous error messages
             document.querySelectorAll('.validation-message').forEach(p => p.textContent = '');
 
-            // Validate first name
-            if (!/^[A-Za-z]+$/.test(firstName)) {
-                document.getElementById('first_name_error').textContent = 'First name can only contain letters.';
-                isValid = false;
-            }
-
-            // Validate last name
-            if (!/^[A-Za-z]+$/.test(lastName)) {
-                document.getElementById('last_name_error').textContent = 'Last name can only contain letters.';
-                isValid = false;
-            }
-
+           
             // Validate email
             if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
                 document.getElementById('email_error').textContent = 'Invalid email format.';
@@ -232,11 +221,7 @@
                 isValid = false;
             }
 
-            // Validate state
-            if (!/^[A-Za-z]+$/.test(state)) {
-                document.getElementById('state_error').textContent = 'State can only contain letters.';
-                isValid = false;
-            }
+            
 
             // Validate pincode
             if (!/^\d{6}$/.test(pincode)) {
@@ -268,21 +253,7 @@
         });
 
         // Real-time validation feedback
-        document.getElementById('first_name').addEventListener('input', function() {
-            if (!/^[A-Za-z]*$/.test(this.value)) {
-                document.getElementById('first_name_error').textContent = 'First name can only contain letters.';
-            } else {
-                document.getElementById('first_name_error').textContent = '';
-            }
-        });
-
-        document.getElementById('last_name').addEventListener('input', function() {
-            if (!/^[A-Za-z]*$/.test(this.value)) {
-                document.getElementById('last_name_error').textContent = 'Last name can only contain letters.';
-            } else {
-                document.getElementById('last_name_error').textContent = '';
-            }
-        });
+        
 
         document.getElementById('email').addEventListener('input', function() {
             if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(this.value)) {
@@ -308,13 +279,7 @@
             }
         });
 
-        document.getElementById('state').addEventListener('input', function() {
-            if (!/^[A-Za-z]*$/.test(this.value)) {
-                document.getElementById('state_error').textContent = 'State can only contain letters.';
-            } else {
-                document.getElementById('state_error').textContent = '';
-            }
-        });
+       
 
         document.getElementById('pincode').addEventListener('input', function() {
             if (!/^\d{6}$/.test(this.value)) {

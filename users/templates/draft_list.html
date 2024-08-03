@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Your Drafts</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Custom CSS -->
+    <style>
+        body {
+            background: linear-gradient(to right, #1e3c72, #2a5298); /* Elegant gradient */
+            color: #ffffff;
+            font-family: 'Roboto', sans-serif;
+        }
+        .navbar-custom {
+            background-color: #2a5298; /* Navbar background color */
+        }
+        .navbar-custom .navbar-brand {
+            color: #ffffff;
+        }
+        .navbar-custom .nav-link {
+            color: #ffffff;
+        }
+        .navbar-custom .nav-link:hover {
+            color: #dcdcdc;
+        }
+        .dropdown-menu {
+            right: 0;
+            left: auto;
+        }
+        .profile-pic {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+        }
+        .btn-custom {
+            background-color: #2a5298;
+            color: #ffffff;
+            border: none;
+        }
+        .btn-custom:hover {
+            background-color: #1e3c72;
+        }
+        .container {
+            max-width: 800px;
+        }
+        h1 {
+            margin-top: 40px;
+            margin-bottom: 20px;
+            text-align: center;
+            color: #ffffff;
+        }
+        .draft-list {
+            list-style-type: none;
+            padding: 0;
+        }
+        .draft-item {
+            background: #ffffff;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            color: #333;
+        }
+        .draft-item a {
+            text-decoration: none;
+            color: #2a5298;
+            font-size: 20px;
+            font-weight: bold;
+        }
+        .draft-item a:hover {
+            text-decoration: underline;
+        }
+        .draft-item p {
+            color: #555;
+        }
+        .text-center {
+            text-align: center;
+        }
+        .btn-edit {
+            background-color: #ffc107; /* Edit button color */
+            color: #333;
+            border: none;
+        }
+        .btn-edit:hover {
+            background-color: #e0a800;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-custom">
+        <a class="navbar-brand" href="{% url 'doctor_dashboard' %}">Doctor Dashboard</a>
+        <div class="collapse navbar-collapse">
+            <ul class="navbar-nav ml-auto">
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        {% if profile_picture_url %}
+                            <img src="{{ profile_picture_url }}" alt="Profile Picture" class="profile-pic">
+                        {% else %}
+                            <img src="default-profile-pic-url.jpg" alt="Default Profile Picture" class="profile-pic">
+                        {% endif %}
+                    </a>
+                    <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                        <a class="dropdown-item" href="#">Profile</a>
+                        <a class="dropdown-item" href="#" onclick="logout()">Logout</a>
+                    </div>
+                </li>
+                <!-- Add Blog Button -->
+                <li class="nav-item">
+                    <a class="nav-link btn btn-custom" href="{% url 'add_blog_post' %}">Add Blog</a>
+                </li>
+                <!-- Edit Blog Button -->
+                {% if user.blog_set.exists %}
+                <li class="nav-item">
+                    <a class="nav-link btn btn-custom" href="{% url 'edit_blog_post' %}">Edit Blog</a>
+                </li>
+                {% endif %}
+                <!-- Show Posted Blogs Button -->
+                <li class="nav-item">
+                    <a class="nav-link btn btn-custom" href="{% url 'show_posted_blogs' %}">Show Posted Blogs</a>
+                </li>
+            </ul>
+        </div>
+    </nav>
+
+    <div class="container">
+        <h1>Your Drafts</h1>
+        {% if drafts %}
+            <ul class="draft-list">
+                {% for draft in drafts %}
+                    <li class="draft-item">
+                        <a href="{% url 'blog_detail' draft.id %}">{{ draft.title }}</a>
+                        <p>{{ draft.short_summary }}</p>
+                        <a href="{% url 'edit_blog_post' draft.id %}" class="btn btn-edit">Edit</a>
+                    </li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <p class="text-center">No drafts available.</p>
+        {% endif %}
+    </div>
+
+    <!-- Bootstrap JS (optional) -->
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <!-- Logout Script -->
+    <script>
+        function logout() {
+            window.location.href = '/login/'; 
+        }
+    </script>
+</body>
+</html>

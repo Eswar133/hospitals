@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Your Posted Blogs</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Custom CSS -->
+    <style>
+        body {
+            background: linear-gradient(to right, #1e3c72, #2a5298); /* Elegant gradient */
+            color: #ffffff;
+            font-family: 'Roboto', sans-serif;
+        }
+        .navbar-custom {
+            background-color: #2a5298; /* Navbar background color */
+        }
+        .navbar-custom .navbar-brand {
+            color: #ffffff;
+        }
+        .navbar-custom .nav-link {
+            color: #ffffff;
+        }
+        .navbar-custom .nav-link:hover {
+            color: #dcdcdc;
+        }
+        .dropdown-menu {
+            right: 0;
+            left: auto;
+        }
+        .profile-pic {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+        }
+        .btn-custom {
+            background-color: #2a5298;
+            color: #ffffff;
+            border: none;
+        }
+        .btn-custom:hover {
+            background-color: #1e3c72;
+        }
+        .container {
+            max-width: 800px;
+        }
+        .blog-list {
+            list-style-type: none;
+            padding: 0;
+        }
+        .blog-item {
+            background: #ffffff;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        .blog-item h2 {
+            color: #2a5298;
+        }
+        .blog-item p {
+            color: #333;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-custom">
+        <a class="navbar-brand" href="{% url 'doctor_dashboard' %}">Doctor Dashboard</a>
+        <div class="collapse navbar-collapse">
+            <ul class="navbar-nav ml-auto">
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        {% if profile_picture_url %}
+                            <img src="{{ profile_picture_url }}" alt="Profile Picture" class="profile-pic">
+                        {% else %}
+                            <img src="default-profile-pic-url.jpg" alt="Default Profile Picture" class="profile-pic">
+                        {% endif %}
+                    </a>
+                    <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                        <a class="dropdown-item" href="#">Profile</a>
+                        <a class="dropdown-item" href="#" onclick="logout()">Logout</a>
+                    </div>
+                </li>
+                <!-- Add Blog Button -->
+                <li class="nav-item">
+                    <a class="nav-link btn btn-custom" href="{% url 'add_blog_post' %}">Add Blog</a>
+                </li>
+                <!-- Edit Blog Button -->
+                {% if user.blog_set.exists %}
+                <li class="nav-item">
+                    <a class="nav-link btn btn-custom" href="{% url 'edit_blog_post' %}">Edit Blog</a>
+                </li>
+                {% endif %}
+                <!-- Show Drafts Button -->
+                <li class="nav-item">
+                    <a class="nav-link btn btn-custom" href="{% url 'show_drafts' %}">Show Drafts</a>
+                </li>
+                
+            </ul>
+        </div>
+    </nav>
+
+    <div class="container">
+        <h1 class="mt-4 mb-4 text-center">Your Posted Blogs</h1>
+        {% if blogs %}
+            <ul class="blog-list">
+                {% for blog in blogs %}
+                    <li class="blog-item">
+                        <h2>{{ blog.title }}</h2>
+                        <p>{{ blog.short_summary }}</p>
+                        <p>{{ blog.content }}</p>
+                    </li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <p class="text-center">No posted blogs available.</p>
+        {% endif %}
+    </div>
+
+    <!-- Bootstrap JS (optional) -->
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <!-- Logout Script -->
+    <script>
+        function logout() {
+            window.location.href = '/login/'; 
+        }
+    </script>
+</body>
+</html>

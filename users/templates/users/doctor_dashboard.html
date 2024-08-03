@@ -100,6 +100,14 @@
                     <a class="nav-link btn btn-custom" href="{% url 'edit_blog_post' %}">Edit Blog</a>
                 </li>
                 {% endif %}
+                <!-- Show Drafts Button -->
+                <li class="nav-item">
+                    <a class="nav-link btn btn-custom" href="{% url 'show_drafts' %}">Show Drafts</a>
+                </li>
+                <!-- Show Posted Blogs Button -->
+                <li class="nav-item">
+                    <a class="nav-link btn btn-custom" href="{% url 'show_posted_blogs' %}">Show Posted Blogs</a>
+                </li>
             </ul>
         </div>
     </nav>
@@ -120,7 +128,7 @@
     <!-- Logout Script -->
     <script>
         function logout() {
-            window.location.href = '/login'; 
+            window.location.href = '/login/'; 
         }
     </script>
 </body>
