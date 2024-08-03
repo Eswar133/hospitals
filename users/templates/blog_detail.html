@@ -44,11 +44,13 @@
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Subtle shadow */
             width: 100%;
             margin-bottom: 20px;
+            position: relative;
         }
         .card-title {
             color: #4169E1; /* Royal Blue for title */
             font-size: 2rem;
             font-weight: 600;
+            text-align: center; /* Center title */
         }
         .card-text {
             color: #333333; /* Dark grey for text */
@@ -57,12 +59,18 @@
             background-color: #4169E1; /* Royal Blue */
             color: white;
             border: none;
-            padding: 10px 20px;
+            padding: 8px 16px; /* Smaller size */
             border-radius: 5px;
             cursor: pointer;
-            font-size: 16px;
-            width: 100%; /* Full width */
+            font-size: 14px; /* Smaller font size */
+            width: auto; /* Auto width to fit content */
+            display: block; /* Block element */
+            margin: 0 auto; /* Center align */
             text-align: center;
+            position: absolute;
+            bottom: 20px; /* Position at the bottom */
+            left: 50%;
+            transform: translateX(-50%);
         }
         .like-button:hover {
             background-color: #3541b0; /* Darker royal blue on hover */
@@ -70,6 +78,7 @@
         .blog-layout {
             display: flex;
             flex-wrap: wrap;
+            align-items: flex-start; /* Align items at the start */
         }
         .blog-image {
             flex: 1;
