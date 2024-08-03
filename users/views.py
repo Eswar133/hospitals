@@ -3,10 +3,11 @@ from django.contrib.auth import login as auth_login, logout as auth_logout
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.http import JsonResponse
 from django.views import View
-from django.views.generic import ListView
+from django.views.generic import ListView, DetailView
 from django.contrib.auth.hashers import make_password
 from django.core.paginator import Paginator
-from .models import User,BlogPost
+from django.db.models import Count
+from .models import User, BlogPost
 
 
 class SignupView(View):
@@ -68,8 +69,7 @@ class LoginView(View):
         except User.DoesNotExist:
             return JsonResponse({'error_message': 'Username or Password are incorrect.'})
 
-class DashboardView(LoginRequiredMixin,View):
-
+class DashboardView(LoginRequiredMixin, View):
     def get(self, request):
         user = request.user
         profile_picture_url = user.profile_picture.url if user.profile_picture else 'default-profile-pic-url.jpg'
@@ -92,33 +92,49 @@ class LogoutView(View):
         auth_logout(request)
         return redirect('login')
 
-class BlogListView(View):
-    def get(self, request, category=None):
-        sort_by = request.GET.get('sort', 'date')  # Default to sorting by date
+class BlogListView(ListView):
+    model = BlogPost
+    template_name = 'blog_list.html'
+    context_object_name = 'page_obj'
+    paginate_by = 10
+
+    def get_queryset(self):
+        # Get the search query and sort option from GET parameters
+        search_query = self.request.GET.get('query', '')
+        sort_by = self.request.GET.get('sort', 'date')  # Default to sorting by date
+        category = self.kwargs.get('category', None)
+        
+        # Filter posts based on the category and draft status
         if category:
             posts = BlogPost.objects.filter(category=category, is_draft=False)
         else:
             posts = BlogPost.objects.filter(is_draft=False)
-
-        search_query = request.GET.get('search', '')
+        
+        # Apply search filter if search query is present
         if search_query:
             posts = posts.filter(title__icontains=search_query) | posts.filter(author__username__icontains=search_query)
-
+        
+        # Apply sorting based on the sort option
         if sort_by == 'likes':
             posts = posts.annotate(like_count=Count('likes')).order_by('-like_count')
         else:
             posts = posts.order_by('-created_at')
+        
+        return posts
 
-        paginator = Paginator(posts, 10)
-        page_number = request.GET.get('page')
-        page_obj = paginator.get_page(page_number)
-
-        return render(request, 'blog_list.html', {'page_obj': page_obj, 'sort_by': sort_by})
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['sort_by'] = self.request.GET.get('sort', 'date')
+        context['query'] = self.request.GET.get('query', '')
+        return context
     
-class BlogDetailView(View):
-    def get(self, request, pk):
-        post = get_object_or_404(BlogPost, pk=pk, is_draft=False)
-        return render(request, 'blog_detail.html', {'post': post})
+class BlogDetailView(DetailView):
+    model = BlogPost
+    template_name = 'blog_detail.html'
+    context_object_name = 'post'
+    
+    def get_queryset(self):
+        return BlogPost.objects.filter(is_draft=False)
 
 class AddBlogPostView(View):
     def get(self, request):
@@ -175,7 +191,7 @@ class DraftListView(LoginRequiredMixin, ListView):
     context_object_name = 'drafts'
 
     def get_queryset(self):
-        return BlogPost.objects.filter(author=self.request.user, is_draft=True)  
+        return BlogPost.objects.filter(author=self.request.user, is_draft=True)
 
 class PostedBlogListView(LoginRequiredMixin, ListView):
     model = BlogPost
