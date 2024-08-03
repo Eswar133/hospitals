@@ -9,59 +9,72 @@
     <!-- Custom CSS -->
     <style>
         body {
-            background: linear-gradient(to right, #1e3c72, #2a5298); /* Elegant gradient */
-            color: #ffffff;
             font-family: 'Roboto', sans-serif;
-        }
-        .dashboard-container {
-            background: #ffffff;
-            border-radius: 15px;
-            padding: 40px;
-            max-width: 900px;
-            margin: 60px auto;
-            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1); /* Subtle shadow */
-            border: 1px solid #e0e0e0;
-        }
-        .dashboard-container h1 {
-            color: #2a5298; /* Professional blue */
-            font-size: 32px;
-            font-weight: 600;
-            margin-bottom: 20px;
-            text-align: center;
-        }
-        .dashboard-container p {
-            color: #333; /* Darker text color for paragraphs */
-            font-size: 18px;
-            line-height: 1.6;
+            background: #ffffff; /* White background */
+            color: #000000; /* Black text */
         }
         .navbar-custom {
-            background-color: #2a5298; /* Navbar background color */
+            background-color: #2a5298; /* Royal Blue */
         }
         .navbar-custom .navbar-brand {
             color: #ffffff;
         }
         .navbar-custom .nav-link {
             color: #ffffff;
+            margin-left: 15px;
         }
         .navbar-custom .nav-link:hover {
             color: #dcdcdc;
-        }
-        .dropdown-menu {
-            right: 0;
-            left: auto;
         }
         .profile-pic {
             width: 40px;
             height: 40px;
             border-radius: 50%;
+            border: 2px solid #ffffff; /* White border for profile picture */
+            margin-right: 10px;
+        }
+        .logout-btn {
+            background-color: #dc3545; /* Bootstrap's danger color */
+            color: #ffffff;
+            border: none;
+            border-radius: 25px; /* Rounded button */
+            padding: 10px 20px;
+            font-size: 16px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3); /* Shadow for button */
+            transition: background-color 0.3s, box-shadow 0.3s; /* Smooth transitions */
+        }
+        .logout-btn:hover {
+            background-color: #c82333; /* Darker red on hover */
+            cursor: pointer;
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.4); /* Darker shadow on hover */
+        }
+        .dashboard-container {
+            background: #f8f9fa; /* Light grey for container */
+            border-radius: 15px;
+            padding: 40px;
+            max-width: 900px;
+            margin: 60px auto;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2); /* Slightly more prominent shadow */
+            border: 1px solid #444;
+        }
+        .dashboard-container h1 {
+            color: #000000; /* Black for heading */
+            font-size: 32px;
+            font-weight: 600;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        .dashboard-container p {
+            color: #000000; /* Black text for paragraphs */
+            font-size: 18px;
+            line-height: 1.6;
         }
         .category-card {
-            background: #ffffff;
+            background: #ffffff; /* White for cards */
             border-radius: 15px;
             box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1); /* Subtle shadow for cards */
             overflow: hidden; /* Ensures content stays within card boundaries */
             transition: transform 0.2s; /* Smooth scale transition */
-            height: 100%; /* Ensures all cards have the same height */
         }
         .category-card:hover {
             transform: scale(1.05); /* Slightly scale up on hover */
@@ -74,28 +87,32 @@
             padding: 20px;
         }
         .category-card .card-title {
+            color: #4169E1; /* Royal Blue for card titles */
+        }
+        .btn-primary{
             color: #2a5298;
         }
+        
     </style>
 </head>
 <body>
     <!-- Navbar -->
     <nav class="navbar navbar-expand-lg navbar-custom">
-        <a class="navbar-brand" href="#">Patient Dashboard</a>
+        <a class="navbar-brand" href="http://127.0.0.1:8000/patient_dashboard/">Patient Dashboard</a>
         <div class="collapse navbar-collapse">
             <ul class="navbar-nav ml-auto">
-                <li class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                <li class="nav-item">
+                    <a class="nav-link">
                         {% if profile_picture_url %}
                             <img src="{{ profile_picture_url }}" alt="Profile Picture" class="profile-pic">
                         {% else %}
                             <img src="default-profile-pic-url.jpg" alt="Default Profile Picture" class="profile-pic">
                         {% endif %}
+                        
                     </a>
-                    <div class="dropdown-menu" aria-labelledby="navbarDropdown">
-                        <a class="dropdown-item" href="#">Profile</a>
-                        <a class="dropdown-item" href="#" onclick="logout()">Logout</a>
-                    </div>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link btn btn-custom" href="#" onclick="logout()">Logout</a>
                 </li>
             </ul>
         </div>
@@ -103,27 +120,25 @@
 
     <div class="container">
         <div class="dashboard-container">
-            <h1>Welcome, {{ user.first_name }} {{ user.last_name }}!</h1>
-            <p>Email: {{ user.email }}</p>
-            <p>Address: {{ user.address_line1 }}, {{ user.city }}, {{ user.state }}, {{ user.pincode }}</p>
-
+            <h1>Welcome, {{ user.first_name }} {{ user.last_name }}! Would you like to read some blogs?</h1>
+            
             <!-- Category Cards -->
             <div class="row">
                 <div class="col-lg-3 col-md-4 col-sm-6 mb-4">
                     <div class="card category-card">
-                        <img src="https://res.cloudinary.com/jerrick/image/upload/c_scale,q_auto/5f7945a7d95201001cc124da.jpg" class="card-img-top" alt="Mental Health">
+                        <img src="https://th.bing.com/th/id/OIP.dfo_iqMN6FAp1g2vQu2UVAHaEK?rs=1&pid=ImgDetMain" class="card-img-top" alt="Mental Health">
                         <div class="card-body">
                             <h5 class="card-title">Mental Health</h5>
-                            <a href="{% url 'blog_list' 'Mental Health' %}" class="btn btn-primary">Explore</a>
+                            <a href="{% url 'blog_list_category' 'Mental Health' %}" class="btn btn-primary">Explore</a>
                         </div>
                     </div>
                 </div>
                 <div class="col-lg-3 col-md-4 col-sm-6 mb-4">
                     <div class="card category-card">
-                        <img src="https://th.bing.com/th/id/OIP.-OSnt96oCABPRGPPVu8SkgHaFy?rs=1&pid=ImgDetMain" class="card-img-top" alt="Heart Disease">
+                        <img src="https://media.clinicaladvisor.com/images/2017/03/29/heartillustrationts51811362_1191108.jpg" class="card-img-top" alt="Heart Disease">
                         <div class="card-body">
                             <h5 class="card-title">Heart Disease</h5>
-                            <a href="{% url 'blog_list' 'Heart Disease' %}" class="btn btn-primary">Explore</a>
+                            <a href="{% url 'blog_list_category' 'Heart Disease' %}" class="btn btn-primary">Explore</a>
                         </div>
                     </div>
                 </div>
@@ -132,7 +147,7 @@
                         <img src="https://www.emeraldgrouppublishing.com/sites/default/files/image/covid-cells.jpg" class="card-img-top" alt="Covid19">
                         <div class="card-body">
                             <h5 class="card-title">Covid19</h5>
-                            <a href="{% url 'blog_list' 'Covid19' %}" class="btn btn-primary">Explore</a>
+                            <a href="{% url 'blog_list_category' 'Covid19' %}" class="btn btn-primary">Explore</a>
                         </div>
                     </div>
                 </div>
@@ -141,7 +156,7 @@
                         <img src="https://stjoseph.stlukeshealth.org/content/dam/stjoseph-stlukeshealth/images/shutterstock-1060328165-min.jpg/_jcr_content/renditions/cq5dam.web.1440.405.jpeg" class="card-img-top" alt="Immunization">
                         <div class="card-body">
                             <h5 class="card-title">Immunization</h5>
-                            <a href="{% url 'blog_list' 'Immunization' %}" class="btn btn-primary">Explore</a>
+                            <a href="{% url 'blog_list_category' 'Immunization' %}" class="btn btn-primary">Explore</a>
                         </div>
                     </div>
                 </div>

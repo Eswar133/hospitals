@@ -9,12 +9,14 @@
     <!-- Custom CSS -->
     <style>
         body {
-            background: linear-gradient(to right, #1e3c72, #2a5298); /* Elegant gradient */
-            color: #ffffff;
+            background-color: #f4f4f9; /* Light grey background */
+            color: #333333; /* Dark grey text */
             font-family: 'Roboto', sans-serif;
+            margin: 0;
+            padding: 0;
         }
         .navbar-custom {
-            background-color: #2a5298; /* Navbar background color */
+            background-color: #2a5298; /* Royal Blue */
         }
         .navbar-custom .navbar-brand {
             color: #ffffff;
@@ -29,69 +31,72 @@
             width: 40px;
             height: 40px;
             border-radius: 50%;
+            border: 2px solid #ffffff; /* White border for profile picture */
         }
         .container {
             margin-top: 60px;
         }
         .card {
-            background-color: #ffffff;
-            color: #333333;
+            background-color: #ffffff; /* White for card background */
+            color: #000000; /* Black text */
             padding: 20px;
             border-radius: 15px; /* Rounded corners */
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Subtle shadow */
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Subtle shadow */
             width: 100%;
-        }
-        .card img {
-            max-width: 100%;
-            height: auto;
-            border-radius: 15px; /* Rounded corners for images */
+            margin-bottom: 20px;
         }
         .card-title {
-            color: #2a5298;
+            color: #4169E1; /* Royal Blue for title */
             font-size: 2rem;
             font-weight: 600;
         }
         .card-text {
-            color: #333;
-        }
-        .btn-primary {
-            background-color: #2a5298;
-            border: none;
-        }
-        .btn-primary:hover {
-            background-color: #1e3c72;
+            color: #333333; /* Dark grey for text */
         }
         .like-button {
-            background-color: #2a5298;
+            background-color: #4169E1; /* Royal Blue */
             color: white;
             border: none;
             padding: 10px 20px;
             border-radius: 5px;
             cursor: pointer;
+            font-size: 16px;
+            width: 100%; /* Full width */
+            text-align: center;
         }
         .like-button:hover {
-            background-color: #1e3c72;
+            background-color: #3541b0; /* Darker royal blue on hover */
+        }
+        .blog-layout {
+            display: flex;
+            flex-wrap: wrap;
+        }
+        .blog-image {
+            flex: 1;
+            min-width: 300px;
+            max-width: 500px;
+        }
+        .blog-content {
+            flex: 2;
+            padding: 20px;
         }
     </style>
 </head>
 <body>
     <!-- Navbar -->
     <nav class="navbar navbar-expand-lg navbar-custom">
-        <a class="navbar-brand" href="http://127.0.0.1:8000/patient_dashboard/">Patient Dashboard</a>
+        <a class="navbar-brand" href="{% url 'patient_dashboard' %}">Home</a>
         <div class="collapse navbar-collapse">
             <ul class="navbar-nav ml-auto">
-                <li class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                        {% if profile_picture_url %}
-                            <img src="{{ profile_picture_url }}" alt="Profile Picture" class="profile-pic">
-                        {% else %}
-                            <img src="default-profile-pic-url.jpg" alt="Default Profile Picture" class="profile-pic">
-                        {% endif %}
-                    </a>
-                    <div class="dropdown-menu" aria-labelledby="navbarDropdown">
-                        <a class="dropdown-item" href="#">Profile</a>
-                        <a class="dropdown-item" href="#" onclick="logout()">Logout</a>
-                    </div>
+                <li class="nav-item">
+                    {% if profile_picture_url %}
+                        <img src="{{ profile_picture_url }}" alt="Profile Picture" class="profile-pic">
+                    {% else %}
+                        <img src="default-profile-pic-url.jpg" alt="Default Profile Picture" class="profile-pic">
+                    {% endif %}
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#" onclick="logout()">Logout</a>
                 </li>
             </ul>
         </div>
@@ -100,11 +105,16 @@
     <div class="container">
         <div class="card">
             <h2 class="card-title">{{ post.title }}</h2>
-            <img class="card-img-top" src="{{ post.image.url }}" alt="{{ post.title }}">
-            <div class="card-body">
-                <p class="card-text">{{ post.content }}</p>
-                <p>Author: {{ post.author.username }}</p>
-                <button id="like-button" class="like-button">{{ post.likes.count }} Likes</button>
+            <div class="blog-layout">
+                <div class="blog-image">
+                    <img class="card-img-top" src="{{ post.image.url }}" alt="{{ post.title }}">
+                </div>
+                <div class="blog-content">
+                    <p class="card-text">{{ post.content }}</p>
+                    <p class="card-text">{{ post.summary }}</p>
+                    <p>Author: {{ post.author.username }}</p>
+                    <button id="like-button" class="like-button">{{ post.likes.count }} Likes</button>
+                </div>
             </div>
         </div>
     </div>

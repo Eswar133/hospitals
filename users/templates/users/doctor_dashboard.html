@@ -9,65 +9,100 @@
     <!-- Custom CSS -->
     <style>
         body {
-            background: linear-gradient(to right, #1e3c72, #2a5298); /* Elegant gradient */
-            color: #ffffff;
+            background: #ffffff; /* White background */
+            color: #000000; /* Black text */
             font-family: 'Roboto', sans-serif;
         }
+        .navbar-custom {
+            background-color: #2a5298; /* Royal Blue */
+        }
+        .navbar-custom .navbar-brand {
+            color: #ffffff; /* White brand text */
+            font-weight: 700;
+        }
+        .navbar-custom .nav-link {
+            color: #f0f0f0; /* Light gray for nav links */
+            margin-left: 15px;
+            font-weight: 500;
+        }
+        .navbar-custom .nav-link:hover {
+            color: #ffffff; /* White on hover */
+        }
+        .navbar-custom .nav-item {
+            position: relative;
+        }
+        .navbar-custom .nav-item .profile-pic {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            border: 2px solid #ffffff; /* White border for profile picture */
+            object-fit: cover;
+            margin-left: 10px; /* Space between profile pic and text */
+        }
+        .logout-btn {
+            background-color: #dc3545; /* Bootstrap's danger color for logout */
+            color: #ffffff;
+            border: none;
+            border-radius: 25px; /* Rounded corners */
+            padding: 10px 20px;
+            font-size: 16px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3); /* Shadow for button */
+            transition: background-color 0.3s, box-shadow 0.3s; /* Smooth transitions */
+        }
+        .logout-btn:hover {
+            background-color: #c82333; /* Darker red on hover */
+            cursor: pointer;
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.4); /* Darker shadow on hover */
+        }
+        .dropdown-menu {
+            background-color: #1e1e1e; /* Slightly lighter black for dropdown */
+        }
+        .dropdown-menu .dropdown-item {
+            color: #ffffff; /* White text for dropdown items */
+        }
+        .dropdown-menu .dropdown-item:hover {
+            background-color: #333333; /* Slightly lighter background on hover */
+        }
         .dashboard-container {
-            background: #ffffff;
+            background: #f8f9fa; /* Light grey for container */
             border-radius: 15px;
             padding: 40px;
-            max-width: 600px;
+            max-width: 900px;
             margin: 60px auto;
-            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1); /* Subtle shadow */
-            border: 1px solid #e0e0e0;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2); /* Slightly more prominent shadow */
+            border: 1px solid #444;
         }
         .dashboard-container h1 {
-            color: #2a5298; /* Professional blue */
+            color: #000000; /* Black for heading */
             font-size: 32px;
             font-weight: 600;
             margin-bottom: 20px;
             text-align: center;
         }
         .dashboard-container p {
-            color: #333; /* Darker text color for paragraphs */
+            color: #000000; /* Black text for paragraphs */
             font-size: 18px;
             line-height: 1.6;
         }
-        .dashboard-container p:first-of-type {
-            margin-top: 0;
+        .category-card {
+            background: #ffffff; /* White for cards */
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1); /* Subtle shadow for cards */
+            overflow: hidden; /* Ensures content stays within card boundaries */
+            transition: transform 0.2s; /* Smooth scale transition */
         }
-        .dashboard-container p:last-of-type {
-            margin-bottom: 0;
+        .category-card:hover {
+            transform: scale(1.05); /* Slightly scale up on hover */
         }
-        .navbar-custom {
-            background-color: #2a5298; /* Navbar background color */
+        .category-card img {
+            height: 200px; /* Fixed height */
+            object-fit: cover; /* Ensures image covers the card area without distortion */
         }
-        .navbar-custom .navbar-brand {
-            color: #ffffff;
+        .category-card .card-body {
+            padding: 20px;
         }
-        .navbar-custom .nav-link {
-            color: #ffffff;
-        }
-        .navbar-custom .nav-link:hover {
-            color: #dcdcdc;
-        }
-        .dropdown-menu {
-            right: 0;
-            left: auto;
-        }
-        .profile-pic {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-        }
-        .btn-custom {
-            background-color: #2a5298;
-            color: #ffffff;
-            border: none;
-        }
-        .btn-custom:hover {
-            background-color: #1e3c72;
+        .category-card .card-title {
+            color: #4169E1; /* Royal Blue for card titles */
         }
     </style>
 </head>
@@ -77,36 +112,32 @@
         <a class="navbar-brand" href="#">Doctor Dashboard</a>
         <div class="collapse navbar-collapse">
             <ul class="navbar-nav ml-auto">
-                <li class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                <li class="nav-item">
+                    <a class="nav-link">
                         {% if profile_picture_url %}
                             <img src="{{ profile_picture_url }}" alt="Profile Picture" class="profile-pic">
                         {% else %}
                             <img src="default-profile-pic-url.jpg" alt="Default Profile Picture" class="profile-pic">
                         {% endif %}
                     </a>
-                    <div class="dropdown-menu" aria-labelledby="navbarDropdown">
-                        <a class="dropdown-item" href="#">Profile</a>
-                        <a class="dropdown-item" href="#" onclick="logout()">Logout</a>
-                    </div>
                 </li>
-                <!-- Add Blog Button -->
                 <li class="nav-item">
-                    <a class="nav-link btn btn-custom" href="{% url 'add_blog_post' %}">Add Blog</a>
+                    <a class="nav-link" href="{% url 'add_blog_post' %}">Add Blog</a>
                 </li>
-                <!-- Edit Blog Button -->
                 {% if user.blog_set.exists %}
                 <li class="nav-item">
-                    <a class="nav-link btn btn-custom" href="{% url 'edit_blog_post' %}">Edit Blog</a>
+                    <a class="nav-link" href="{% url 'edit_blog_post' %}">Edit Blog</a>
                 </li>
                 {% endif %}
-                <!-- Show Drafts Button -->
                 <li class="nav-item">
-                    <a class="nav-link btn btn-custom" href="{% url 'show_drafts' %}">Show Drafts</a>
+                    <a class="nav-link" href="{% url 'show_drafts' %}">Show Drafts</a>
                 </li>
-                <!-- Show Posted Blogs Button -->
                 <li class="nav-item">
-                    <a class="nav-link btn btn-custom" href="{% url 'show_posted_blogs' %}">Show Posted Blogs</a>
+                    <a class="nav-link" href="{% url 'show_posted_blogs' %}">Show Posted Blogs</a>
+                </li>
+                
+                <li class="nav-item">
+                    <a class="nav-link btn btn-custom" href="#" onclick="logout()">Logout</a>
                 </li>
             </ul>
         </div>
@@ -121,14 +152,14 @@
         </div>
     </div>
 
-    <!-- Bootstrap JS (optional) -->
+    <!-- Bootstrap JS and dependencies -->
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
     <!-- Logout Script -->
     <script>
         function logout() {
-            window.location.href = '/login/'; 
+            window.location.href = '/login/';
         }
     </script>
 </body>

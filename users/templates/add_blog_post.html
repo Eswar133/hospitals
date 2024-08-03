@@ -9,20 +9,21 @@
     <!-- Custom CSS -->
     <style>
         body {
-            font-family: Arial, sans-serif;
+            font-family: 'Roboto', sans-serif;
             margin: 0;
             padding: 0;
-            background: linear-gradient(to right, #1e3c72, #2a5298); /* Gradient background */
-            color: #333;
+            background: #ffffff; /* White background */
+            color: #000000; /* Black text */
         }
         .navbar-custom {
-            background-color: #2a5298; /* Navbar background color */
+            background-color: #2a5298; /* Royal Blue */
         }
         .navbar-custom .navbar-brand {
             color: #ffffff;
         }
         .navbar-custom .nav-link {
             color: #ffffff;
+            margin-left: 15px;
         }
         .navbar-custom .nav-link:hover {
             color: #dcdcdc;
@@ -31,33 +32,35 @@
             width: 40px;
             height: 40px;
             border-radius: 50%;
+            border: 2px solid #ffffff; /* White border for profile picture */
+            margin-right: 10px;
         }
         .btn-custom {
-            background-color: #2a5298;
-            color: #ffffff;
+            background-color: #2a5298; /* Royal Blue */
+            color: #2a5298;
             border: none;
         }
         .btn-custom:hover {
-            background-color: #1e3c72;
+            background-color: #3541b0; /* Darker royal blue on hover */
         }
         h2 {
             text-align: center;
-            color: #ffffff;
+            color: #000000; /* Black for heading text */
             margin-top: 40px;
             margin-bottom: 20px;
         }
         form {
-            background-color: #ffffff;
+            background-color: #f8f9fa; /* Light grey for form background */
             padding: 20px;
             border-radius: 8px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2); /* Subtle shadow */
             max-width: 600px;
             margin: 20px auto;
         }
         label {
             display: block;
             margin-bottom: 8px;
-            color: #333;
+            color: #000000; /* Black for label text */
         }
         input[type="text"],
         input[type="file"],
@@ -66,25 +69,46 @@
             width: 100%;
             padding: 12px;
             margin-bottom: 15px;
-            border: 1px solid #ccc;
+            border: 1px solid #ced4da; /* Grey border for inputs */
             border-radius: 4px;
-            box-sizing: border-box;
+            background: #ffffff; /* White background for inputs */
+            color: #000000; /* Black text */
         }
-        input[type="checkbox"] {
-            margin-right: 8px;
+        .save-draft-container {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
         }
-        button {
-            display: inline-block;
-            background-color: #007bff;
-            color: #fff;
-            padding: 12px 20px;
+        .save-draft-label {
+            font-size: 20px; /* Increase font size */
+            margin-right: 10px; /* Space between label and checkbox */
+        }
+        .save-draft-checkbox {
+            width: 20px; /* Increase width */
+            height: 20px; /* Increase height */
+            transform: scale(1.5); /* Scale up the checkbox */
+            margin-left: 10px; /* Space between label and checkbox */
+        }
+        .btn-edit {
+            background-color: #ffc107; /* Edit button color */
+            color: #333;
             border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 16px;
         }
-        button:hover {
-            background-color: #0056b3;
+        .btn-edit:hover {
+            background-color: #e0a800; /* Darker edit button color on hover */
+        }
+        #blog-button {
+            background-color: #2a5298; /* Royal Blue */
+            color: #ffffff; /* White text */
+            border: none;
+            width: 100%; /* Full width */
+            padding: 12px; /* Padding for better appearance */
+            font-size: 16px; /* Larger font size for better readability */
+            border-radius: 4px; /* Rounded corners */
+            cursor: pointer; /* Pointer cursor on hover */
+        }
+        #blog-button:hover {
+            background-color: #3541b0; /* Darker royal blue on hover */
         }
     </style>
 </head>
@@ -94,18 +118,13 @@
         <a class="navbar-brand" href="{% url 'doctor_dashboard' %}">Doctor Dashboard</a>
         <div class="collapse navbar-collapse">
             <ul class="navbar-nav ml-auto">
-                <li class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                        {% if profile_picture_url %}
-                            <img src="{{ profile_picture_url }}" alt="Profile Picture" class="profile-pic">
-                        {% else %}
-                            <img src="default-profile-pic-url.jpg" alt="Default Profile Picture" class="profile-pic">
-                        {% endif %}
-                    </a>
-                    <div class="dropdown-menu" aria-labelledby="navbarDropdown">
-                        <a class="dropdown-item" href="#">Profile</a>
-                        <a class="dropdown-item" href="#" onclick="logout()">Logout</a>
-                    </div>
+                <!-- Profile Picture -->
+                <li class="nav-item">
+                    {% if profile_picture_url %}
+                        <img src="{{ profile_picture_url }}" alt="Profile Picture" class="profile-pic">
+                    {% else %}
+                        <img src="default-profile-pic-url.jpg" alt="Default Profile Picture" class="profile-pic">
+                    {% endif %}
                 </li>
                 <!-- Edit Blog Button -->
                 {% if user.blog_set.exists %}
@@ -120,6 +139,10 @@
                 <!-- Show Posted Blogs Button -->
                 <li class="nav-item">
                     <a class="nav-link btn btn-custom" href="{% url 'show_posted_blogs' %}">Show Posted Blogs</a>
+                </li>
+                <!-- Logout Button -->
+                <li class="nav-item">
+                    <a class="nav-link btn btn-custom" href="#" onclick="logout()">Logout</a>
                 </li>
             </ul>
         </div>
@@ -146,20 +169,22 @@
         <label for="content">Content:</label>
         <textarea id="content" name="content" rows="6" required></textarea>
         
-        <label for="is_draft">Save as draft:</label>
-        <input type="checkbox" id="is_draft" name="is_draft">
+        <div class="save-draft-container">
+            <label for="is_draft" class="save-draft-label">Save as draft:</label>
+            <input type="checkbox" id="is_draft" name="is_draft" class="save-draft-checkbox">
+        </div>
         
-        <button type="submit">Add Blog Post</button>
+        <button type="submit" id="blog-button">Add Blog Post</button>
     </form>
 
-    <!-- Bootstrap JS (optional) -->
+    <!-- Bootstrap JS and dependencies -->
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
     <!-- Logout Script -->
     <script>
         function logout() {
-            window.location.href = '/login/'; 
+            window.location.href = '/login/';
         }
     </script>
 </body>

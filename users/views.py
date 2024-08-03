@@ -91,22 +91,26 @@ class LogoutView(View):
     def get(self, request):
         auth_logout(request)
         return redirect('login')
+    
+from django.db.models import Count
+
+from django.core.paginator import Paginator
 
 class BlogListView(ListView):
     model = BlogPost
     template_name = 'blog_list.html'
     context_object_name = 'page_obj'
-    paginate_by = 10
+    paginate_by = 10  # Number of posts per page
 
     def get_queryset(self):
         search_query = self.request.GET.get('query', '')
         sort_by = self.request.GET.get('sort', 'date')
         category = self.kwargs.get('category', None)
 
+        posts = BlogPost.objects.filter(is_draft=False)
+
         if category:
-            posts = BlogPost.objects.filter(category=category, is_draft=False)
-        else:
-            posts = BlogPost.objects.filter(is_draft=False)
+            posts = posts.filter(category=category)
 
         if search_query:
             posts = posts.filter(title__icontains=search_query) | posts.filter(author__username__icontains=search_query)
@@ -122,8 +126,16 @@ class BlogListView(ListView):
         context = super().get_context_data(**kwargs)
         context['sort_by'] = self.request.GET.get('sort', 'date')
         context['query'] = self.request.GET.get('query', '')
+        context['category'] = self.kwargs.get('category', None)
         user = self.request.user
         context['profile_picture_url'] = user.profile_picture.url if user.profile_picture else 'default-profile-pic-url.jpg'
+        
+        # Add pagination information
+        paginator = Paginator(self.get_queryset(), self.paginate_by)
+        page_number = self.request.GET.get('page')
+        page_obj = paginator.get_page(page_number)
+        context['page_obj'] = page_obj
+
         return context
 
 class BlogDetailView(DetailView):
@@ -180,7 +192,6 @@ class AddBlogPostView(View):
         blog_post.save()
         return redirect('doctor_dashboard')
 
-
 class EditBlogPostView(View):
     def get(self, request, pk):
         post = get_object_or_404(BlogPost, pk=pk, author=request.user)
@@ -215,10 +226,12 @@ class LikeBlogPostView(View):
         else:
             post.likes.add(request.user)
         return JsonResponse({'likes_count': post.likes.count()})
+
 class DraftListView(LoginRequiredMixin, ListView):
     model = BlogPost
     template_name = 'draft_list.html'
     context_object_name = 'drafts'
+    paginate_by = 10  # Adjust the number of drafts per page
 
     def get_queryset(self):
         return BlogPost.objects.filter(author=self.request.user, is_draft=True)
@@ -234,10 +247,12 @@ class DraftListView(LoginRequiredMixin, ListView):
         else:
             context['profile_picture_url'] = None
         return context
+      
 class PostedBlogListView(LoginRequiredMixin, ListView):
     model = BlogPost
     template_name = 'posted_blog_list.html'
     context_object_name = 'blogs'
+    paginate_by = 10  # Number of blogs per page
 
     def get_queryset(self):
         return BlogPost.objects.filter(author=self.request.user, is_draft=False)
