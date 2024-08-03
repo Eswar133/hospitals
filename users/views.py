@@ -99,35 +99,33 @@ class BlogListView(ListView):
     paginate_by = 10
 
     def get_queryset(self):
-        # Get the search query and sort option from GET parameters
         search_query = self.request.GET.get('query', '')
-        sort_by = self.request.GET.get('sort', 'date')  # Default to sorting by date
+        sort_by = self.request.GET.get('sort', 'date')
         category = self.kwargs.get('category', None)
-        
-        # Filter posts based on the category and draft status
+
         if category:
             posts = BlogPost.objects.filter(category=category, is_draft=False)
         else:
             posts = BlogPost.objects.filter(is_draft=False)
-        
-        # Apply search filter if search query is present
+
         if search_query:
             posts = posts.filter(title__icontains=search_query) | posts.filter(author__username__icontains=search_query)
-        
-        # Apply sorting based on the sort option
+
         if sort_by == 'likes':
             posts = posts.annotate(like_count=Count('likes')).order_by('-like_count')
         else:
             posts = posts.order_by('-created_at')
-        
+
         return posts
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['sort_by'] = self.request.GET.get('sort', 'date')
         context['query'] = self.request.GET.get('query', '')
+        user = self.request.user
+        context['profile_picture_url'] = user.profile_picture.url if user.profile_picture else 'default-profile-pic-url.jpg'
         return context
-    
+
 class BlogDetailView(DetailView):
     model = BlogPost
     template_name = 'blog_detail.html'
@@ -135,10 +133,32 @@ class BlogDetailView(DetailView):
     
     def get_queryset(self):
         return BlogPost.objects.filter(is_draft=False)
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        user = self.request.user
+        if user.is_authenticated:
+            try:
+                context['profile_picture_url'] = user.profile_picture.url
+            except AttributeError:
+                context['profile_picture_url'] = None
+        else:
+            context['profile_picture_url'] = None
+        return context
 
 class AddBlogPostView(View):
     def get(self, request):
-        return render(request, 'add_blog_post.html', {'categories': BlogPost.CATEGORY_CHOICES})
+        user = request.user
+        context = {
+            'categories': BlogPost.CATEGORY_CHOICES,
+            'profile_picture_url': None
+        }
+        if user.is_authenticated:
+            try:
+                context['profile_picture_url'] = user.profile_picture.url
+            except AttributeError:
+                context['profile_picture_url'] = None
+        return render(request, 'add_blog_post.html', context)
 
     def post(self, request):
         title = request.POST.get('title')
@@ -160,10 +180,21 @@ class AddBlogPostView(View):
         blog_post.save()
         return redirect('doctor_dashboard')
 
+
 class EditBlogPostView(View):
     def get(self, request, pk):
         post = get_object_or_404(BlogPost, pk=pk, author=request.user)
-        return render(request, 'edit_blog_post.html', {'post': post, 'categories': BlogPost.CATEGORY_CHOICES})
+        context = {
+            'post': post,
+            'categories': BlogPost.CATEGORY_CHOICES,
+            'profile_picture_url': None
+        }
+        if request.user.is_authenticated:
+            try:
+                context['profile_picture_url'] = request.user.profile_picture.url
+            except AttributeError:
+                context['profile_picture_url'] = None
+        return render(request, 'edit_blog_post.html', context)
 
     def post(self, request, pk):
         post = get_object_or_404(BlogPost, pk=pk, author=request.user)
@@ -184,7 +215,6 @@ class LikeBlogPostView(View):
         else:
             post.likes.add(request.user)
         return JsonResponse({'likes_count': post.likes.count()})
-
 class DraftListView(LoginRequiredMixin, ListView):
     model = BlogPost
     template_name = 'draft_list.html'
@@ -193,6 +223,17 @@ class DraftListView(LoginRequiredMixin, ListView):
     def get_queryset(self):
         return BlogPost.objects.filter(author=self.request.user, is_draft=True)
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        user = self.request.user
+        if user.is_authenticated:
+            try:
+                context['profile_picture_url'] = user.profile_picture.url
+            except AttributeError:
+                context['profile_picture_url'] = None
+        else:
+            context['profile_picture_url'] = None
+        return context
 class PostedBlogListView(LoginRequiredMixin, ListView):
     model = BlogPost
     template_name = 'posted_blog_list.html'
@@ -200,3 +241,15 @@ class PostedBlogListView(LoginRequiredMixin, ListView):
 
     def get_queryset(self):
         return BlogPost.objects.filter(author=self.request.user, is_draft=False)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        user = self.request.user
+        if user.is_authenticated:
+            try:
+                context['profile_picture_url'] = user.profile_picture.url
+            except AttributeError:
+                context['profile_picture_url'] = None
+        else:
+            context['profile_picture_url'] = None
+        return context

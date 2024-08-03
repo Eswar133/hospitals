@@ -21,4 +21,6 @@ urlpatterns = [
     path('blogs/<str:category>/', BlogListView.as_view(), name='blog_list'),
     path('drafts/', DraftListView.as_view(), name='show_drafts'),
     path('posted_blogs/', PostedBlogListView.as_view(), name='show_posted_blogs'),
-] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
+] 
+if settings.DEBUG:
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

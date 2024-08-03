@@ -9,9 +9,26 @@
     <!-- Custom CSS -->
     <style>
         body {
-            background: linear-gradient(to right, #1e3c72, #2a5298); 
+            background: linear-gradient(to right, #1e3c72, #2a5298); /* Elegant gradient */
             color: #ffffff;
             font-family: 'Roboto', sans-serif;
+        }
+        .navbar-custom {
+            background-color: #2a5298; /* Navbar background color */
+        }
+        .navbar-custom .navbar-brand {
+            color: #ffffff;
+        }
+        .navbar-custom .nav-link {
+            color: #ffffff;
+        }
+        .navbar-custom .nav-link:hover {
+            color: #dcdcdc;
+        }
+        .profile-pic {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
         }
         .container {
             margin-top: 60px;
@@ -20,12 +37,14 @@
             background-color: #ffffff;
             color: #333333;
             padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            border-radius: 15px; /* Rounded corners */
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Subtle shadow */
+            width: 100%;
         }
         .card img {
             max-width: 100%;
-            border-radius: 10px;
+            height: auto;
+            border-radius: 15px; /* Rounded corners for images */
         }
         .card-title {
             color: #2a5298;
@@ -56,6 +75,7 @@
     </style>
 </head>
 <body>
+    <!-- Navbar -->
     <nav class="navbar navbar-expand-lg navbar-custom">
         <a class="navbar-brand" href="http://127.0.0.1:8000/patient_dashboard/">Patient Dashboard</a>
         <div class="collapse navbar-collapse">
@@ -76,13 +96,16 @@
             </ul>
         </div>
     </nav>
+    
     <div class="container">
         <div class="card">
             <h2 class="card-title">{{ post.title }}</h2>
-            <img src="{{ post.image.url }}" alt="{{ post.title }}">
-            <p class="card-text">{{ post.content }}</p>
-            <p>Author: {{ post.author.username }}</p>
-            <button id="like-button" class="like-button">{{ post.likes.count }} Likes</button>
+            <img class="card-img-top" src="{{ post.image.url }}" alt="{{ post.title }}">
+            <div class="card-body">
+                <p class="card-text">{{ post.content }}</p>
+                <p>Author: {{ post.author.username }}</p>
+                <button id="like-button" class="like-button">{{ post.likes.count }} Likes</button>
+            </div>
         </div>
     </div>
 
