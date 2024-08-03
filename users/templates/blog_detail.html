@@ -80,6 +80,18 @@
             flex: 2;
             padding: 20px;
         }
+        .read-more,
+        .read-less {
+            cursor: pointer;
+            color: #4169E1;
+            font-weight: bold;
+        }
+        .read-less {
+            display: none; /* Hide "Read Less" initially */
+        }
+        .full-summary {
+            display: none;
+        }
     </style>
 </head>
 <body>
@@ -111,7 +123,16 @@
                 </div>
                 <div class="blog-content">
                     <p class="card-text">{{ post.content }}</p>
-                    <p class="card-text">{{ post.summary }}</p>
+                    {% with post.summary|slice:":15" as truncated_summary %}
+                        <p class="card-text">
+                            {{ truncated_summary }}{% if post.summary|length > 15 %}...
+                            <span class="read-more" onclick="toggleSummary(this)">Read More</span>{% endif %}
+                        </p>
+                        {% if post.summary|length > 15 %}
+                            <p class="card-text full-summary">{{ post.summary }}</p>
+                            <span class="read-less" onclick="toggleSummary(this)">Read Less</span>
+                        {% endif %}
+                    {% endwith %}
                     <p>Author: {{ post.author.username }}</p>
                     <button id="like-button" class="like-button">{{ post.likes.count }} Likes</button>
                 </div>
@@ -134,6 +155,22 @@
         
         function logout() {
             window.location.href = '/login/';
+        }
+
+        function toggleSummary(element) {
+            const fullSummary = element.parentNode.nextElementSibling;
+            const readMore = document.querySelector('.read-more');
+            
+
+            if (fullSummary.style.display === 'none' || fullSummary.style.display === '') {
+                fullSummary.style.display = 'block';
+                readMore.style.display = 'none';
+                readLess.style.display = 'inline';
+            } else {
+                fullSummary.style.display = 'none';
+                readMore.style.display = 'inline';
+                readLess.style.display = 'none';
+            }
         }
     </script>
 
