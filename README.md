@@ -62,10 +62,14 @@ This project is an implementation of REST API endpoints to handle user managemen
 
 ## Libraries and Tools
 - Django's built-in authentication system
--  SQLite (default database)
-  
+-  MySQL
+
+# MySQL (instructions to install mysql client)
+- Link : https://github.com/Eswar133/hospitals/blob/main/MySQL.md
 # Installation
 - Link : https://github.com/Eswar133/hospitals/blob/main/Installation.md
 
+
 # Requirements
 - Link : https://github.com/Eswar133/hospitals/blob/main/requirements.txt
+
