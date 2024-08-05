@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Appointments</title>
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<style>
+    body {
+        background: #ffffff; /* White background */
+        color: #000000; /* Black text */
+        font-family: 'Roboto', sans-serif;
+    }
+    .navbar-custom {
+        background-color: #2a5298; /* Royal Blue */
+    }
+    .navbar-custom .navbar-brand {
+        color: #ffffff; /* White brand text */
+        font-weight: 700;
+    }
+    .navbar-custom .nav-link {
+        color: #f0f0f0; /* Light gray for nav links */
+        margin-left: 15px;
+        font-weight: 500;
+    }
+    .navbar-custom .nav-link:hover {
+        color: #ffffff; /* White on hover */
+    }
+    .navbar-custom .nav-item {
+        position: relative;
+    }
+    .navbar-custom .nav-item .profile-pic {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        border: 2px solid #ffffff; /* White border for profile picture */
+        object-fit: cover;
+        margin-left: 10px; /* Space between profile pic and text */
+    }
+    .logout-btn {
+        background-color: #dc3545; /* Bootstrap's danger color for logout */
+        color: #ffffff;
+        border: none;
+        border-radius: 25px; /* Rounded corners */
+        padding: 10px 20px;
+        font-size: 16px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3); /* Shadow for button */
+        transition: background-color 0.3s, box-shadow 0.3s; /* Smooth transitions */
+    }
+    .logout-btn:hover {
+        background-color: #c82333; /* Darker red on hover */
+        cursor: pointer;
+        box-shadow: 0 6px 12px rgba(0, 0, 0, 0.4); /* Darker shadow on hover */
+    }
+</style>
+<body>
+    {% include '_include/header_doctor.html' %}
+    <div class="container">
+        <h2>My Appointments</h2>
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <th>Patient Name</th>
+                    <th>Speciality</th>
+                    <th>Date</th>
+                    <th>Time</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for appointment in appointments %}
+                <tr>
+                    <td>{{ appointment.patient.get_full_name }}</td>
+                    <td>{{ appointment.speciality }}</td>
+                    <td>{{ appointment.appointment_date }}</td>
+                    <td>{{ appointment.start_time }} - {{ appointment.end_time }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</body>
+</html>

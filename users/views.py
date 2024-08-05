@@ -7,7 +7,13 @@ from django.views.generic import ListView, DetailView
 from django.contrib.auth.hashers import make_password
 from django.core.paginator import Paginator
 from django.db.models import Count
-from .models import User, BlogPost
+from .models import User, BlogPost, Appointment
+from datetime import datetime, timedelta
+from .utils import create_google_calendar_event
+from django.utils import timezone
+from django.conf import settings
+from google.oauth2.service_account import Credentials
+from googleapiclient.discovery import build
 
 
 class SignupView(View):
@@ -92,7 +98,6 @@ class LogoutView(View):
         auth_logout(request)
         return redirect('login')
     
-
 class BlogListView(ListView):
     model = BlogPost
     template_name = 'blog_list.html'
@@ -116,7 +121,7 @@ class BlogListView(ListView):
             posts = posts.annotate(like_count=Count('likes')).order_by('-like_count')
         else:
             posts = posts.order_by('-created_at')
-        print(posts)    
+            
         return posts
         
     def truncate_words(self,value, num_words):
@@ -273,3 +278,111 @@ class PostedBlogListView(LoginRequiredMixin, ListView):
         else:
             context['profile_picture_url'] = None
         return context
+    
+class DoctorListView(LoginRequiredMixin, ListView):
+    model = User
+    template_name = 'doctor_list.html'
+    context_object_name = 'doctors'
+
+    def get_queryset(self):
+        return User.objects.filter(user_type='doctor')
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        user = self.request.user
+        if user.is_authenticated:
+            try:
+                context['profile_picture_url'] = user.profile_picture.url
+            except AttributeError:
+                context['profile_picture_url'] = 'default-profile-pic-url.jpg'
+        else:
+            context['profile_picture_url'] = 'default-profile-pic-url.jpg'
+        return context
+
+class BookAppointmentView(LoginRequiredMixin, View):
+    def get(self, request, pk):
+        doctor = get_object_or_404(User, pk=pk, user_type='doctor')
+        return render(request, 'book_appointment.html', {'doctor': doctor})
+    
+    def post(self, request, pk):
+        doctor = get_object_or_404(User, pk=pk, user_type='doctor')
+        speciality = request.POST.get('speciality')
+        appointment_date = request.POST.get('appointment_date')
+        start_time = request.POST.get('start_time')
+        
+        if not all([speciality, appointment_date, start_time]):
+            return JsonResponse({'error': 'All fields are required.'}, status=400)
+
+        # Parse the appointment date and start time
+        appointment_date_obj = datetime.strptime(appointment_date, '%Y-%m-%d').date()
+        start_time_obj = datetime.strptime(start_time, '%H:%M').time()
+        appointment_datetime_naive = datetime.combine(appointment_date_obj, start_time_obj)
+
+        # Convert the naive datetime to an aware datetime
+        appointment_datetime = timezone.make_aware(appointment_datetime_naive, timezone.get_current_timezone())
+
+        # Check if the appointment datetime is in the past
+        if appointment_datetime <= timezone.now():
+            return JsonResponse({'error': 'Cannot book an appointment in the past.'}, status=400)
+
+        end_time = (appointment_datetime + timedelta(minutes=45)).time()
+
+        appointment = Appointment.objects.create(
+            patient=request.user,
+            doctor=doctor,
+            speciality=speciality,
+            appointment_date=appointment_datetime.date(),
+            start_time=appointment_datetime.time(),
+            end_time=end_time
+        )
+
+        # Create Google Calendar event
+        event_id = self.create_google_calendar_event(appointment)
+        appointment.calendar_event_id = event_id
+        appointment.save()
+
+        return JsonResponse({'message': 'Appointment booked successfully!'})
+
+    def create_google_calendar_event(self, appointment):
+        SCOPES = ['https://www.googleapis.com/auth/calendar']
+        creds = Credentials.from_service_account_file(settings.GOOGLE_SERVICE_ACCOUNT_JSON, scopes=SCOPES)
+        service = build('calendar', 'v3', credentials=creds)
+
+        event = {
+            'summary': f'Appointment with Dr. {appointment.doctor.get_full_name}',
+            'description': appointment.speciality,
+            'start': {
+                'dateTime': f'{appointment.appointment_date}T{appointment.start_time.isoformat()}',
+                'timeZone': 'UTC',
+            },
+            'end': {
+                'dateTime': f'{appointment.appointment_date}T{appointment.end_time.isoformat()}',
+                'timeZone': 'UTC',
+            },
+        }
+        event = service.events().insert(calendarId='primary', body=event).execute()
+        return event['id']
+          
+class AppointmentDetailView(LoginRequiredMixin, View):
+    def get(self, request, pk):
+        appointment = get_object_or_404(Appointment, pk=pk, patient=request.user)
+        return render(request, 'appointment_details.html', {'appointment': appointment})
+
+class DoctorAppointmentsView(LoginRequiredMixin, ListView):
+    model = Appointment
+    template_name = 'doctor_appointments.html'
+    context_object_name = 'appointments'
+    
+    def get_queryset(self):
+        return Appointment.objects.filter(doctor=self.request.user).order_by('appointment_date', 'start_time')
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        user = self.request.user
+        if user.is_authenticated:
+            try:
+                context['profile_picture_url'] = user.profile_picture.url
+            except AttributeError:
+                context['profile_picture_url'] = 'default-profile-pic-url.jpg'
+        else:
+            context['profile_picture_url'] = 'default-profile-pic-url.jpg'
+        return context
+    

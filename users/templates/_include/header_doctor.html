@@ -12,6 +12,9 @@
                 </a>
             </li>
             <li class="nav-item d-flex align-items-center">
+                <a class="nav-link" href="{% url 'doctor_appointments' %}">show appointments</a>
+            </li>
+            <li class="nav-item d-flex align-items-center">
                 <a class="nav-link" href="{% url 'add_blog_post' %}">Add Blog</a>
             </li>
             {% if user.blog_set.exists %}
