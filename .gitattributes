@@ -1,0 +1,9 @@
+#For JSON files to always use LF:
+*.json text eol=lf
+
+#For all files to use LF:
+* text=auto
+
+#To enforce LF for specific files and CRLF for others
+*.sh text eol=lf
+*.bat text eol=crlf
