@@ -1,4 +1,8 @@
-import os
+import datetime
+from django.core.mail import EmailMessage
+from django.http import HttpResponse
+from django.views import View
+from icalendar import Calendar, Event
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import login as auth_login, logout as auth_logout
 from django.contrib.auth.mixins import LoginRequiredMixin
@@ -10,16 +14,15 @@ from django.core.paginator import Paginator
 from django.db.models import Count
 from .models import User, BlogPost, Appointment
 from datetime import datetime, timedelta
-from .utils import send_email_with_calendar_invite, create_ics_file
 from django.utils import timezone
 from django.conf import settings
 from django.core.mail import EmailMessage
 from django.utils.html import strip_tags
 from django.contrib.sites.shortcuts import get_current_site
 from django.template.loader import render_to_string
-from google.oauth2.service_account import Credentials
-from googleapiclient.discovery import build
-
+from icalendar import Calendar, Event
+from datetime import datetime
+        
 
 class SignupView(View):
     def get(self, request):
@@ -341,125 +344,63 @@ class BookAppointmentView(View):
             end_time=end_time
         )
 
-        # Send email confirmation
-        self.send_appointment_email(appointment)
+        # Send email confirmation and Google Meet invitation
+        self.send_meet_invitation_email(appointment)
 
         return JsonResponse({'message': 'Appointment booked successfully!'})
 
-    def create_ics_file(self, appointment):
-        # Create a calendar instance
+    def send_meet_invitation_email(self, appointment):
+        
+        # Meeting details
+        meet_link = "https://meet.google.com/yof-gjxt-bfm?ijlm=1721145916397&adhoc=1&hs=187"
+        event_title = f"Google Meet with Dr. {appointment.doctor.get_full_name()}"
+        
+        # Use datetime.combine correctly
+        start_time = datetime.combine(appointment.appointment_date, appointment.start_time)
+        end_time = datetime.combine(appointment.appointment_date, appointment.end_time)
+        
+        description = (f"You have an appointment with Dr. {appointment.doctor.get_full_name()} "
+                       f"({appointment.speciality})\n\n"
+                       f"Join the meeting using the following link: {meet_link}")
+
+        # Create an ICS file
         cal = Calendar()
-
-        # Create an event instance
         event = Event()
-        event.name = f"Appointment with Dr. {appointment.doctor.get_full_name()}"
-        event.begin = datetime.combine(appointment.appointment_date, appointment.start_time)
-        event.end = datetime.combine(appointment.appointment_date, appointment.end_time)
-        event.description = f"Appointment with Dr. {appointment.doctor.get_full_name()} - Speciality: {appointment.speciality}"
+        event.add('summary', event_title)
+        event.add('dtstart', start_time)
+        event.add('dtend', end_time)
+        event.add('description', description)
+        event.add('location', meet_link)
+        cal.add_component(event)
 
-        # Add event to the calendar
-        cal.events.add(event)
+        # Write ICS file to a string
+        ics_file_content = cal.to_ical()
 
-        # Create a file-like object to store the .ics content
-        ics_file = io.BytesIO()
-        ics_file.write(str(cal).encode('utf-8'))
-        ics_file.seek(0)  # Rewind the file pointer to the beginning
+        # Create an email with ICS file attachment
+        subject = f"Appointment Confirmation: Meet with Dr. {appointment.doctor.get_full_name()}"
+        message = (f"Dear {appointment.patient.get_full_name()},\n\n"
+                   f"You are invited to a meeting. Details:\n\n{description}\n\n"
+                   f"Date: {appointment.appointment_date.strftime('%b. %d, %Y')}\n"
+                   f"Time: {start_time.strftime('%I:%M %p')} - {end_time.strftime('%I:%M %p')}\n\n"
+                   f"Thank you.")
+        from_email = "manikantapadala358@gmail.com"
+        recipient_list = [appointment.patient.email]
 
-        return ics_file
-
-    def send_appointment_email(self, appointment):
-        context = {
-            'patient_name': f"{appointment.patient.first_name} {appointment.patient.last_name}",
-            'doctor_name': f"{appointment.doctor.first_name} {appointment.doctor.last_name}",
-            'speciality': appointment.speciality,
-            'date': appointment.appointment_date.strftime("%b. %d, %Y"),
-            'start_time': appointment.start_time.strftime("%I:%M %p"),
-            'end_time': appointment.end_time.strftime("%I:%M %p"),
-        }
-        html_content = render_to_string('appointment_email.html', context)
-        text_content = strip_tags(html_content)  # Fallback to plain text content
-
-        # Create .ics file
-        ics_file = self.create_ics_file(appointment)
-
-        # Send the email with .ics attachment
         email = EmailMessage(
-            'Appointment Confirmation',
-            text_content,
-            'your_email@example.com',  # From email
-            [appointment.patient.email],  # To email
+            subject,
+            message,
+            from_email,
+            recipient_list
         )
-        email.content_subtype = 'html'  # Set the primary content to be HTML
-        email.attach('appointment.ics', ics_file.read(), 'text/calendar')
+
+        # Attach the ICS file
+        email.attach('invitation.ics', ics_file_content, 'text/calendar')
+
+        # Send the email
         email.send()
 
-class BookAppointmentView(View):
-    def get(self, request, pk):
-        doctor = get_object_or_404(User, pk=pk, user_type='doctor')
-        return render(request, 'book_appointment.html', {'doctor': doctor})
+        return "Email sent with Google Meet invitation."
 
-    def post(self, request, pk):
-        doctor = get_object_or_404(User, pk=pk, user_type='doctor')
-        speciality = request.POST.get('speciality')
-        appointment_date = request.POST.get('appointment_date')
-        start_time = request.POST.get('start_time')
-
-        if not all([speciality, appointment_date, start_time]):
-            return JsonResponse({'error': 'All fields are required.'}, status=400)
-
-        # Parse the appointment date and start time
-        appointment_date_obj = datetime.strptime(appointment_date, '%Y-%m-%d').date()
-        start_time_obj = datetime.strptime(start_time, '%H:%M').time()
-        appointment_datetime_naive = datetime.combine(appointment_date_obj, start_time_obj)
-
-        # Convert the naive datetime to an aware datetime
-        appointment_datetime = timezone.make_aware(appointment_datetime_naive, timezone.get_current_timezone())
-
-        # Check if the appointment datetime is in the past
-        if appointment_datetime <= timezone.now():
-            return JsonResponse({'error': 'Cannot book an appointment in the past.'}, status=400)
-
-        end_time = (appointment_datetime + timedelta(minutes=45)).time()
-
-        appointment = Appointment.objects.create(
-            patient=request.user,
-            doctor=doctor,
-            speciality=speciality,
-            appointment_date=appointment_datetime.date(),
-            start_time=appointment_datetime.time(),
-            end_time=end_time
-        )
-
-        # Send email confirmation
-        self.send_appointment_email(appointment)
-
-        return JsonResponse({'message': 'Appointment booked successfully!'})
-
-    def send_appointment_email(self, appointment):
-        context = {
-            'patient_name': f"{appointment.patient.first_name} {appointment.patient.last_name}",
-            'doctor_name': f"{appointment.doctor.first_name} {appointment.doctor.last_name}",
-            'speciality': appointment.speciality,
-            'date': appointment.appointment_date.strftime("%b. %d, %Y"),
-            'start_time': appointment.start_time.strftime("%I:%M %p"),
-            'end_time': appointment.end_time.strftime("%I:%M %p"),
-        }
-        html_content = render_to_string('appointment_email.html', context)
-        text_content = strip_tags(html_content)  # Fallback to plain text content
-
-        # Create .ics file
-        ics_file = create_ics_file(appointment)
-
-        # Send the email with .ics attachment
-        email = EmailMessage(
-            'Appointment Confirmation',
-            text_content,
-            'manikantapadala358@gmail.com',  # From email
-            [appointment.patient.email],  # To email
-        )
-        email.content_subtype = 'html'  # Set the primary content to be HTML
-        email.attach('appointment.ics', ics_file.read(), 'text/calendar')
-        email.send()
 
                
 class AppointmentDetailView(LoginRequiredMixin, View):

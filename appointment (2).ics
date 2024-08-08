@@ -1,0 +1,11 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:ics.py - http://git.io/lLljaA
+BEGIN:VEVENT
+DESCRIPTION:Appointment with Dr. Doctor1 Doctor1 - Speciality: Allergy and immunology
+DTEND:20240823T133800Z
+DTSTART:20240823T125300Z
+SUMMARY:Appointment with Dr. Doctor1 Doctor1
+UID:6a5ac032-9f48-4cf6-830c-11d7463f08ff@6a5a.org
+END:VEVENT
+END:VCALENDAR
