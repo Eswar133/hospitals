@@ -142,3 +142,17 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 AUTH_USER_MODEL = 'users.User'
 
+GOOGLE_SERVICE_ACCOUNT_JSON = os.path.join(BASE_DIR, 'google_calendar_credentials.json')
+
+# settings.py
+
+import os
+from dotenv import load_dotenv
+
+load_dotenv()
+
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = os.getenv('EMAIL_USER')
+EMAIL_HOST_PASSWORD = os.getenv('EMAIL_PASS')

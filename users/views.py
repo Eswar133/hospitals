@@ -1,3 +1,4 @@
+import os
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import login as auth_login, logout as auth_logout
 from django.contrib.auth.mixins import LoginRequiredMixin
@@ -7,7 +8,17 @@ from django.views.generic import ListView, DetailView
 from django.contrib.auth.hashers import make_password
 from django.core.paginator import Paginator
 from django.db.models import Count
-from .models import User, BlogPost
+from .models import User, BlogPost, Appointment
+from datetime import datetime, timedelta
+from .utils import send_email_with_calendar_invite, create_ics_file
+from django.utils import timezone
+from django.conf import settings
+from django.core.mail import EmailMessage
+from django.utils.html import strip_tags
+from django.contrib.sites.shortcuts import get_current_site
+from django.template.loader import render_to_string
+from google.oauth2.service_account import Credentials
+from googleapiclient.discovery import build
 
 
 class SignupView(View):
@@ -92,7 +103,6 @@ class LogoutView(View):
         auth_logout(request)
         return redirect('login')
     
-
 class BlogListView(ListView):
     model = BlogPost
     template_name = 'blog_list.html'
@@ -116,7 +126,7 @@ class BlogListView(ListView):
             posts = posts.annotate(like_count=Count('likes')).order_by('-like_count')
         else:
             posts = posts.order_by('-created_at')
-        print(posts)    
+            
         return posts
         
     def truncate_words(self,value, num_words):
@@ -273,3 +283,206 @@ class PostedBlogListView(LoginRequiredMixin, ListView):
         else:
             context['profile_picture_url'] = None
         return context
+    
+class DoctorListView(LoginRequiredMixin, ListView):
+    model = User
+    template_name = 'doctor_list.html'
+    context_object_name = 'doctors'
+
+    def get_queryset(self):
+        return User.objects.filter(user_type='doctor')
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        user = self.request.user
+        if user.is_authenticated:
+            try:
+                context['profile_picture_url'] = user.profile_picture.url
+            except AttributeError:
+                context['profile_picture_url'] = 'default-profile-pic-url.jpg'
+        else:
+            context['profile_picture_url'] = 'default-profile-pic-url.jpg'
+        return context
+
+
+class BookAppointmentView(View):
+    def get(self, request, pk):
+        doctor = get_object_or_404(User, pk=pk, user_type='doctor')
+        return render(request, 'book_appointment.html', {'doctor': doctor})
+
+    def post(self, request, pk):
+        doctor = get_object_or_404(User, pk=pk, user_type='doctor')
+        speciality = request.POST.get('speciality')
+        appointment_date = request.POST.get('appointment_date')
+        start_time = request.POST.get('start_time')
+
+        if not all([speciality, appointment_date, start_time]):
+            return JsonResponse({'error': 'All fields are required.'}, status=400)
+
+        # Parse the appointment date and start time
+        appointment_date_obj = datetime.strptime(appointment_date, '%Y-%m-%d').date()
+        start_time_obj = datetime.strptime(start_time, '%H:%M').time()
+        appointment_datetime_naive = datetime.combine(appointment_date_obj, start_time_obj)
+
+        # Convert the naive datetime to an aware datetime
+        appointment_datetime = timezone.make_aware(appointment_datetime_naive, timezone.get_current_timezone())
+
+        # Check if the appointment datetime is in the past
+        if appointment_datetime <= timezone.now():
+            return JsonResponse({'error': 'Cannot book an appointment in the past.'}, status=400)
+
+        end_time = (appointment_datetime + timedelta(minutes=45)).time()
+
+        appointment = Appointment.objects.create(
+            patient=request.user,
+            doctor=doctor,
+            speciality=speciality,
+            appointment_date=appointment_datetime.date(),
+            start_time=appointment_datetime.time(),
+            end_time=end_time
+        )
+
+        # Send email confirmation
+        self.send_appointment_email(appointment)
+
+        return JsonResponse({'message': 'Appointment booked successfully!'})
+
+    def create_ics_file(self, appointment):
+        # Create a calendar instance
+        cal = Calendar()
+
+        # Create an event instance
+        event = Event()
+        event.name = f"Appointment with Dr. {appointment.doctor.get_full_name()}"
+        event.begin = datetime.combine(appointment.appointment_date, appointment.start_time)
+        event.end = datetime.combine(appointment.appointment_date, appointment.end_time)
+        event.description = f"Appointment with Dr. {appointment.doctor.get_full_name()} - Speciality: {appointment.speciality}"
+
+        # Add event to the calendar
+        cal.events.add(event)
+
+        # Create a file-like object to store the .ics content
+        ics_file = io.BytesIO()
+        ics_file.write(str(cal).encode('utf-8'))
+        ics_file.seek(0)  # Rewind the file pointer to the beginning
+
+        return ics_file
+
+    def send_appointment_email(self, appointment):
+        context = {
+            'patient_name': f"{appointment.patient.first_name} {appointment.patient.last_name}",
+            'doctor_name': f"{appointment.doctor.first_name} {appointment.doctor.last_name}",
+            'speciality': appointment.speciality,
+            'date': appointment.appointment_date.strftime("%b. %d, %Y"),
+            'start_time': appointment.start_time.strftime("%I:%M %p"),
+            'end_time': appointment.end_time.strftime("%I:%M %p"),
+        }
+        html_content = render_to_string('appointment_email.html', context)
+        text_content = strip_tags(html_content)  # Fallback to plain text content
+
+        # Create .ics file
+        ics_file = self.create_ics_file(appointment)
+
+        # Send the email with .ics attachment
+        email = EmailMessage(
+            'Appointment Confirmation',
+            text_content,
+            'your_email@example.com',  # From email
+            [appointment.patient.email],  # To email
+        )
+        email.content_subtype = 'html'  # Set the primary content to be HTML
+        email.attach('appointment.ics', ics_file.read(), 'text/calendar')
+        email.send()
+
+class BookAppointmentView(View):
+    def get(self, request, pk):
+        doctor = get_object_or_404(User, pk=pk, user_type='doctor')
+        return render(request, 'book_appointment.html', {'doctor': doctor})
+
+    def post(self, request, pk):
+        doctor = get_object_or_404(User, pk=pk, user_type='doctor')
+        speciality = request.POST.get('speciality')
+        appointment_date = request.POST.get('appointment_date')
+        start_time = request.POST.get('start_time')
+
+        if not all([speciality, appointment_date, start_time]):
+            return JsonResponse({'error': 'All fields are required.'}, status=400)
+
+        # Parse the appointment date and start time
+        appointment_date_obj = datetime.strptime(appointment_date, '%Y-%m-%d').date()
+        start_time_obj = datetime.strptime(start_time, '%H:%M').time()
+        appointment_datetime_naive = datetime.combine(appointment_date_obj, start_time_obj)
+
+        # Convert the naive datetime to an aware datetime
+        appointment_datetime = timezone.make_aware(appointment_datetime_naive, timezone.get_current_timezone())
+
+        # Check if the appointment datetime is in the past
+        if appointment_datetime <= timezone.now():
+            return JsonResponse({'error': 'Cannot book an appointment in the past.'}, status=400)
+
+        end_time = (appointment_datetime + timedelta(minutes=45)).time()
+
+        appointment = Appointment.objects.create(
+            patient=request.user,
+            doctor=doctor,
+            speciality=speciality,
+            appointment_date=appointment_datetime.date(),
+            start_time=appointment_datetime.time(),
+            end_time=end_time
+        )
+
+        # Send email confirmation
+        self.send_appointment_email(appointment)
+
+        return JsonResponse({'message': 'Appointment booked successfully!'})
+
+    def send_appointment_email(self, appointment):
+        context = {
+            'patient_name': f"{appointment.patient.first_name} {appointment.patient.last_name}",
+            'doctor_name': f"{appointment.doctor.first_name} {appointment.doctor.last_name}",
+            'speciality': appointment.speciality,
+            'date': appointment.appointment_date.strftime("%b. %d, %Y"),
+            'start_time': appointment.start_time.strftime("%I:%M %p"),
+            'end_time': appointment.end_time.strftime("%I:%M %p"),
+        }
+        html_content = render_to_string('appointment_email.html', context)
+        text_content = strip_tags(html_content)  # Fallback to plain text content
+
+        # Create .ics file
+        ics_file = create_ics_file(appointment)
+
+        # Send the email with .ics attachment
+        email = EmailMessage(
+            'Appointment Confirmation',
+            text_content,
+            'manikantapadala358@gmail.com',  # From email
+            [appointment.patient.email],  # To email
+        )
+        email.content_subtype = 'html'  # Set the primary content to be HTML
+        email.attach('appointment.ics', ics_file.read(), 'text/calendar')
+        email.send()
+
+               
+class AppointmentDetailView(LoginRequiredMixin, View):
+    def get(self, request, pk):
+        appointment = get_object_or_404(Appointment, pk=pk, patient=request.user)
+        return render(request, 'appointment_details.html', {'appointment': appointment})
+
+class DoctorAppointmentsView(LoginRequiredMixin, ListView):
+    model = Appointment
+    template_name = 'doctor_appointments.html'
+    context_object_name = 'appointments'
+    
+    def get_queryset(self):
+        return Appointment.objects.filter(doctor=self.request.user).order_by('appointment_date', 'start_time')
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        user = self.request.user
+        if user.is_authenticated:
+            try:
+                context['profile_picture_url'] = user.profile_picture.url
+            except AttributeError:
+                context['profile_picture_url'] = 'default-profile-pic-url.jpg'
+        else:
+            context['profile_picture_url'] = 'default-profile-pic-url.jpg'
+        return context
+    

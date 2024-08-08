@@ -8,9 +8,11 @@
                         <img src="{{ profile_picture_url }}" alt="Profile Picture" class="profile-pic">
                     {% else %}
                         <img src="default-profile-pic-url.jpg" alt="Default Profile Picture" class="profile-pic">
-                    {% endif %}
-                    
+                    {% endif %}    
                 </a>
+            </li>
+            <li class="nav-item d-flex align-items-center">
+                <a class="nav-link" href="{% url 'doctor_list' %}">Book appointment</a>
             </li>
             <li class="nav-item d-flex align-items-center">
                 <a class="nav-link btn btn-custom" href="#" onclick="logout()">Logout</a>

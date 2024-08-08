@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Appointment Confirmation</title>
+</head>
+<body>
+    <p>Dear {{ user.get_full_name }},</p>
+    <p>Your appointment with Dr. {{ doctor.get_full_name }} has been successfully booked.</p>
+    <p><strong>Speciality:</strong> {{ speciality }}</p>
+    <p><strong>Date:</strong> {{ date }}</p>
+    <p><strong>Start Time:</strong> {{ start_time }}</p>
+    <p><strong>End Time:</strong> {{ end_time }}</p>
+    
+</body>
+</html>

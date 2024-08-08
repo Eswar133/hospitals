@@ -46,3 +46,16 @@ class BlogPost(models.Model):
 
     class Meta:
         ordering = ['-created_at']
+
+
+class Appointment(models.Model):
+    patient = models.ForeignKey(User, on_delete=models.CASCADE, related_name='appointments')
+    doctor = models.ForeignKey(User, on_delete=models.CASCADE, related_name='appointments_with')
+    speciality = models.CharField(max_length=255)
+    appointment_date = models.DateField()
+    start_time = models.TimeField()
+    end_time = models.TimeField()
+    calendar_event_id = models.CharField(max_length=255, null=True, blank=True)
+
+    def __str__(self):
+        return f"Appointment with Dr. {self.doctor.get_full_name()} on {self.appointment_date} at {self.start_time}"
