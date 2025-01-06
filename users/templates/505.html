@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Server Error (500)</title>
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background: linear-gradient(to right, #1e3c72, #2a5298);
+            color: #ffffff;
+            font-family: 'Roboto', sans-serif;
+        }
+        .form-container {
+            background: #ffffff;
+            border-radius: 15px;
+            padding: 40px;
+            max-width: 550px;
+            margin: 60px auto;
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1); 
+            border: 1px solid #e0e0e0;
+            text-align: center;
+        }
+        h1 {
+            font-size: 5em;
+            color: #2a5298;
+            margin-bottom: 20px;
+        }
+        p {
+            font-size: 1.2em;
+            color: #333;
+        }
+        .btn-home {
+            background-color: #2a5298;
+            border: none;
+            color: #ffffff;
+            padding: 12px 20px;
+            font-size: 16px;
+            border-radius: 8px;
+            font-weight: 600;
+            margin-top: 20px;
+            text-decoration: none;
+            display: inline-block;
+        }
+        .btn-home:hover {
+            background-color: #1e3c72;
+            transform: translateY(-3px);
+        }
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            padding: 15px 30px;
+            background-color: #ffffff;
+            color: #2a5298;
+        }
+        .navbar a {
+            color: #2a5298;
+            text-decoration: none;
+            font-weight: bold;
+            margin-left: 15px;
+        }
+        .navbar a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <a href="/signup/">Home</a>
+        <div>
+            {% if not user.is_authenticated %}
+                <a href="/login/">Login</a>
+                <a href="/signup/">Sign Up</a>
+            {% else %}
+                <a href="/logout/">Logout</a>
+            {% endif %}
+        </div>
+    </nav>
+    <div class="form-container">
+        <h1>500</h1>
+        <p>Server error</p>
+        <p>Sorry, something went wrong on our end. Please try again later.</p>
+        <a href="/signup/" class="btn-home">Go to Home</a>
+    </div>
+</body>
+</html>

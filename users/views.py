@@ -427,3 +427,10 @@ class DoctorAppointmentsView(LoginRequiredMixin, ListView):
             context['profile_picture_url'] = 'default-profile-pic-url.jpg'
         return context
     
+    
+def custom_404_view(request, exception):
+    return render(request, "404.html")
+
+
+def custom_500_view(request):
+    return render(request, "500.html")
